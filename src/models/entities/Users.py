@@ -12,5 +12,9 @@ class User():
         self.created_at = created_at
         
     @classmethod
+    def hash_password(self, password):
+        return hashpw(password.encode('utf-8'), gensalt()).decode('utf-8')
+    
+    @classmethod
     def check_password(self, hashed_password, password):
         return checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
