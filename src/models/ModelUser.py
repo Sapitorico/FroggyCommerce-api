@@ -2,6 +2,8 @@ import re
 import uuid
 from flask import jsonify, make_response
 
+from utils.Security import Security
+
 from .entities.Users import User
 
 class ModelUser():
@@ -42,7 +44,8 @@ class ModelUser():
                 return jsonify({"error": "Credenciales incorrectas."}), 400
             if user.password == False:
                 return jsonify({"error": "Credenciales incorrectas."}), 400
-            return jsonify({"user": user.to_dict(), "message": "Inicio de sesión exitoso."}), 200
+            token = Security.getnerate_token(user)
+            return jsonify({"success": True, "user": user.to_dict(), "token": token, "message": "Inicio de sesión exitoso."}), 200
         except Exception as e:
             raise Exception(f"Error al conectar con la base de datos: {str(e)}")
         finally:

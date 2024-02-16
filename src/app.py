@@ -11,6 +11,9 @@ from models.ModelUser import ModelUser
 # Entities:
 from models.entities.Users import User
 
+# Utils:
+from utils.Security import Security
+
 app = Flask(__name__)
 
 db = MySQL(app)
@@ -50,7 +53,13 @@ def login():
         response = ModelUser.login(db, user)
         return response
         
-        
+
+@app.route('/token_test', methods=['GET'])
+def token_test():
+    has_access = Security.verify_token(request.headers)
+    if has_access:
+        return jsonify({"message": "Token válido."}), 200
+    return jsonify({"message": "Token inválido."}), 401
 
         
 
