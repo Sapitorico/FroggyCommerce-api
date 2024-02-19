@@ -26,5 +26,5 @@ class User():
             "full_name": self.full_name,
             "email": self.email,
             "user_type": self.user_type,
-            "created_at": self.created_at
+            "created_at": self.created_at.strftime('%Y-%m-%d %H:%M:%S')
         }

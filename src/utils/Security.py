@@ -1,21 +1,19 @@
-import datetime
 import jwt
 import pytz
-import os
-from dotenv import load_dotenv
-
-load_dotenv()
+from os import getenv
+from datetime import datetime, timedelta
+from flask import jsonify
 
 class Security():
     
-    secret = os.getenv('JWT_SECRET')
+    secret = getenv('JWT_SECRET')
     tz = pytz.timezone('America/Montevideo')
     
     @classmethod
     def getnerate_token(cls, user):
         payload = {
-            "iat": datetime.datetime.now(tz=cls.tz),
-            "exp": datetime.datetime.now(tz=cls.tz) + datetime.timedelta(days=1),
+            "iat": datetime.now(tz=cls.tz),
+            "exp": datetime.now(tz=cls.tz) + timedelta(days=1),
             "id": user.id,
             "full_name": user.full_name,
             "email": user.email,
@@ -26,15 +24,17 @@ class Security():
     
     @classmethod
     def verify_token(cls, headers):
-        if 'Authorization' in headers.keys():
-            authorization = headers['Authorization']
+        if 'Authorization' not in headers:
+            return jsonify({"success": False, "message": "Unauthorized"}), 401
+        authorization = headers['Authorization']
+        try:
             encode_token = authorization.split(' ')[1]
-            try:
-                playload = jwt.decode(encode_token, cls.secret, algorithms=['HS256'])
-                if playload['user_type'] == "admin":
-                    return True
-                return False
-            except (jwt.ExpiredSignatureError, jwt.InvalidTokenError):
-                return False
-            
-        return False
+            playload = jwt.decode(encode_token, cls.secret, algorithms=['HS256'])
+            if playload.get('user_type') == "admin":
+                return None
+            return jsonify({"success": False, "message": "Unauthorized"}), 401
+        except jwt.ExpiredSignatureError:
+            return jsonify({"success": False, "message": "Token expired"}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({"success": False, "message": "Invalid token"}), 403
+    

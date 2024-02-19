@@ -1,8 +1,9 @@
 import re
 import uuid
 from flask import jsonify, make_response
+from datetime import datetime
 
-from utils.Security import Security
+from ..utils.Security import Security
 
 from .entities.Users import User
 
@@ -16,9 +17,9 @@ class ModelUser():
             existing_user = cursor.fetchone()
             if existing_user:
                 return jsonify({"error": "El usuario ya existe."}), 400
-            sql = "INSERT INTO users (id, full_name, email, password, user_type) VALUES (%s, %s, %s, %s, 'customer')"
+            sql = "INSERT INTO users (id, full_name, email, password, user_type, created_at) VALUES (%s, %s, %s, %s, 'customer', %s)"
             user_id = str(uuid.uuid4())
-            cursor.execute(sql, (user_id, user.full_name, user.email, user.password))
+            cursor.execute(sql, (user_id, user.full_name, user.email, user.password, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
             db.connection.commit()
         except Exception as e:
             return jsonify({"error": f"Error de base de datos: {str(e)}"}), 500
@@ -45,20 +46,13 @@ class ModelUser():
             if user.password == False:
                 return jsonify({"error": "Credenciales incorrectas."}), 400
             token = Security.getnerate_token(user)
-            return jsonify({"success": True, "user": user.to_dict(), "token": token, "message": "Inicio de sesión exitoso."}), 200
-        except Exception as e:
-            raise Exception(f"Error al conectar con la base de datos: {str(e)}")
-        finally:
-            cursor.close()
-        
-        
-    @classmethod
-    def get_user_by_email(self, db, email):
-        try:
-            cursor = db.connection.cursor()
-            cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
-            user = cursor.fetchone()
-            return user
+            response_data = {
+                "success": True,
+                "user": user.to_dict(),
+                "token": token,
+                "message": "Inicio de sesión exitoso."
+                }
+            return jsonify(response_data), 200
         except Exception as e:
             raise Exception(f"Error al conectar con la base de datos: {str(e)}")
         finally:
