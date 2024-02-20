@@ -70,9 +70,85 @@ class ModelUser():
             print("Connection closed")
 
     @classmethod
+    def get_user_by_id(self, db, id):
+        try:
+            cursor = db.cursor()
+            sql = "SELECT * FROM users WHERE id = %s"
+            cursor.execute(sql, (id,))
+            user = cursor.fetchone()
+            if not user:
+                return jsonify({"success": False, "message": "Usuario no encontrado."}), 404
+            user = User(id=user[0],
+                        full_name=user[1],
+                        email=user[2],
+                        user_type=user[4],
+                        created_at=user[5])
+            return jsonify({"success": True, "user": user.to_dict()}), 200
+        except Exception as e:
+            raise Exception(
+                f"Error al conectar con la base de datos: {str(e)}")
+        finally:
+            cursor.close()
+            print("Connection closed")
+
+    @classmethod
+    def update_user(self, db, id, data_user):
+        try:
+            cursor = db.cursor()
+            sql = "UPDATE users SET "
+            set_values = []
+            values = []
+            if 'full_name' in data_user:
+                set_values.append("full_name = %s")
+                values.append(data_user['full_name'])
+            if 'email' in data_user:
+                set_values.append("email = %s")
+                values.append(data_user['email'])
+            if 'user_type' in data_user:
+                set_values.append("user_type = %s")
+                values.append(data_user['user_type'])
+            if 'password' in data_user:
+                set_values.append("password = %s")
+                values.append(data_user['password'])
+            values.append(id)
+            sql = f"UPDATE users SET {', '.join(set_values)} WHERE id = %s"
+            cursor.execute(sql, tuple(values))
+            db.commit()
+            return jsonify({"success": True, "message": f'Usuario actualizado con éxito.'}), 200
+        except Exception as e:
+            raise Exception(
+                f"Error al conectar con la base de datos: {str(e)}")
+        finally:
+            # cursor.close()
+            print("Connection closed")
+
+    @classmethod
+    def validate_data_update(cls, data):
+        if not data:
+            return jsonify({"success": False, "message": "No se proporcionaron datos."}), 400
+
+        required_fields = ['full_name', 'email', 'user_type', 'password']
+        if not any(field in data for field in required_fields):
+            return jsonify({"success": False, "message": "Se debe proporcionar al menos uno de los siguientes campos: full_name, email, user_type, password."}), 400
+
+        if 'email' in data and not re.match(r"[^@]+@[^@]+\.[^@]+", data["email"]):
+            return jsonify({"success": False, "message": "Formato de correo electrónico inválido."}), 400
+
+        if 'full_name' in data and len(data["full_name"].split(' ')) < 2:
+            return jsonify({"success": False, "message": "El nombre completo debe contener al menos nombre y apellido."}), 400
+
+        if 'user_type' in data and data["user_type"] not in ["admin", "customer"]:
+            return jsonify({"success": False, "message": "El tipo de usuario debe ser 'admin' o 'customer'."}), 400
+
+        if 'password' in data and len(data["password"]) < 8:
+            return jsonify({"success": False, "message": "La contraseña debe tener al menos 8 caracteres."}), 400
+
+        return None
+
+    @classmethod
     def validate_data_register(self, data):
         if not data:
-            return jsonify({"error": "No se proporcionaron datos."}), 400
+            return jsonify({"success": False, "message": "No se proporcionaron datos."}), 400
         full_name = data.get('full_name')
         email = data.get('email')
         password = data.get('password')
