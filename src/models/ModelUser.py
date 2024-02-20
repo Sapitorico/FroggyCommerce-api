@@ -156,35 +156,35 @@ class ModelUser():
         missing_fields = [field for field in [
             'full_name', 'email', 'password'] if field not in data]
         if missing_fields:
-            return jsonify({"error": f"Faltan los siguientes campos: {', '.join(missing_fields)}."}), 400
+            return jsonify({"success": False, "message": f"Faltan los siguientes campos: {', '.join(missing_fields)}."}), 400
 
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            return jsonify({"error": "Formato de correo electrónico inválido."}), 400
+            return jsonify({"success": False, "message": "Formato de correo electrónico inválido."}), 400
 
         if len(password) < 8:
-            return jsonify({"error": "La contraseña debe tener al menos 8 caracteres."}), 400
+            return jsonify({"success": False, "message": "La contraseña debe tener al menos 8 caracteres."}), 400
 
         if len(full_name.split(' ')) < 2:
-            return jsonify({"error": "El nombre completo debe contener al menos nombre y apellido."}), 400
+            return jsonify({"success": False, "message": "El nombre completo debe contener al menos nombre y apellido."}), 400
 
         return None
 
     @classmethod
     def validate_data_login(self, data):
         if not data:
-            return jsonify({"error": "No se proporcionaron datos."}), 400
+            return jsonify({"success": False, "message": "No se proporcionaron datos."}), 400
         email = data.get('email')
         password = data.get('password')
 
         missing_fields = [field for field in [
             'email', 'password'] if field not in data]
         if missing_fields:
-            return jsonify({"error": f"Faltan los siguientes campos: {', '.join(missing_fields)}."}), 400
+            return jsonify({"success": False, "message": f"Faltan los siguientes campos: {', '.join(missing_fields)}."}), 400
 
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            return jsonify({"error": "Formato de correo electrónico inválido."}), 400
+            return jsonify({"success": False, "message": "Formato de correo electrónico inválido."}), 400
 
         if len(password) < 8:
-            return jsonify({"error": "La contraseña debe tener al menos 8 caracteres."}), 400
+            return jsonify({"success": False, "message": "La contraseña debe tener al menos 8 caracteres."}), 400
 
         return None

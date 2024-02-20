@@ -89,7 +89,7 @@ class TestModelUser(unittest.TestCase):
                             response, "Se esperaba una respuesta de error"
                         )
                         self.assertEqual(
-                            response[0].json["error"],
+                            response[0].json["message"],
                             case["expected_error"],
                             "Mensaje de error incorrecto",
                         )
@@ -149,7 +149,7 @@ class TestModelUser(unittest.TestCase):
                             response, "Se esperaba una respuesta de error"
                         )
                         self.assertEqual(
-                            response[0].json["error"],
+                            response[0].json["message"],
                             case["expected_error"],
                             "Mensaje de error incorrecto",
                         )
