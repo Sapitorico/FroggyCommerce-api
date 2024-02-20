@@ -2,14 +2,16 @@ from flask import Blueprint, request
 from datetime import datetime
 from uuid import uuid4
 
-# # Database:
-from .. import db
+from src.database.db_conection import connect_to_mysql
+
+# Database:
+db = connect_to_mysql()
 
 # Models:
-from ..models.ModelUser import ModelUser
+from src.models.ModelUser import ModelUser
 
 # Entities
-from ..models.entities.Users import User
+from src.models.entities.Users import User
 
 
 auth = Blueprint('auth', __name__)
@@ -41,5 +43,5 @@ def login():
             return validation_error
         user = User(email=data.get('email'), 
                     password=data.get('password'))
-        response = ModelUser.login(db, user)
+        response = ModelUser.login(db,user)
         return response
