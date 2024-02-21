@@ -2,12 +2,6 @@ from flask import Blueprint, request
 from datetime import datetime
 from uuid import uuid4
 
-# Database
-from src.database.db_conection import connect_to_mysql
-
-# Database connection:
-db = connect_to_mysql()
-
 # Models:
 from src.models.ModelUser import ModelUser
 
@@ -16,6 +10,7 @@ from src.models.entities.Users import User
 
 
 auth = Blueprint('auth', __name__)
+
 
 @auth.route('/register', methods=['POST'])
 def register():
@@ -28,12 +23,12 @@ def register():
         user = User(id=str(uuid4()),
                     full_name=data.get('full_name'),
                     email=data.get('email'),
-                    password=User.hash_password(data.get('password')), 
-                    user_type='customer', 
+                    password=User.hash_password(data.get('password')),
+                    user_type='customer',
                     created_at=current_datetime)
-        response = ModelUser.register(db, user)
+        response = ModelUser.register(user)
         return response
-    
+
 
 @auth.route('/login', methods=['POST'])
 def login():
@@ -42,7 +37,7 @@ def login():
         validation_error = ModelUser.validate_data_login(data)
         if validation_error:
             return validation_error
-        user = User(email=data.get('email'), 
+        user = User(email=data.get('email'),
                     password=data.get('password'))
-        response = ModelUser.login(db, user)
+        response = ModelUser.login(user)
         return response

@@ -9,19 +9,28 @@ from src.utils.Security import Security
 # Entities:
 from src.models.entities.Users import User
 
+# Database
+from src.database.db_conection import connect_to_mysql
 
+# Database connection:
+db = connect_to_mysql()
 class ModelUser():
 
     @classmethod
-    def register(cls, db, user):
+    def register(cls, user):
         try:
             cursor = db.cursor()
             cursor.execute(
-                "SELECT * FROM users WHERE email = %s", (user.email,))
+                "SELECT email FROM users WHERE email = %s", (user.email,))
             existing_user = cursor.fetchone()
             if existing_user:
                 return jsonify({"success": False, "message": "Este usuario ya fue registrado"}), 400
-            sql = "INSERT INTO users (id, full_name, email, password, user_type, created_at) VALUES (%s, %s, %s, %s, 'customer', %s)"
+            sql = """ INSERT INTO users (id,
+                                        full_name,
+                                        email,
+                                        password,
+                                        user_type,
+                                        created_at) VALUES (%s, %s, %s, %s, 'customer', %s) """
             user_id = str(uuid.uuid4())
             cursor.execute(sql, (user_id, user.full_name, user.email,
                            user.password, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
@@ -35,7 +44,7 @@ class ModelUser():
         return jsonify({"success": True, "message": f'Usuario {user.full_name} registrado con éxito'}), 201
 
     @classmethod
-    def login(cls, db, user):
+    def login(cls, user):
         try:
             cursor = db.cursor()
             cursor.execute(
@@ -70,10 +79,30 @@ class ModelUser():
             print("Connection closed")
 
     @classmethod
-    def get_user_by_id(cls, db, id):
+    def get_users(cls):
         try:
             cursor = db.cursor()
-            sql = "SELECT * FROM users WHERE id = %s"
+            cursor.execute(
+                "SELECT id, full_name, email, user_type, created_at FROM users WHERE user_type = 'customer'")
+            users = cursor.fetchall()
+            users = [User(id=user[0],
+                          full_name=user[1],
+                          email=user[2],
+                          user_type=user[3],
+                          created_at=user[4]) for user in users]
+            return jsonify({"success": True, "users": [user.to_dict() for user in users]}), 200
+        except Exception as e:
+            raise Exception(
+                f"Error al conectar con la base de datos: {str(e)}")
+        finally:
+            cursor.close()
+            print("Connection closed")
+
+    @classmethod
+    def get_user_by_id(cls, id):
+        try:
+            cursor = db.cursor()
+            sql = "SELECT id, full_name, email, user_type, created_at FROM users WHERE id = %s"
             cursor.execute(sql, (id,))
             user = cursor.fetchone()
             if not user:
@@ -81,8 +110,8 @@ class ModelUser():
             user = User(id=user[0],
                         full_name=user[1],
                         email=user[2],
-                        user_type=user[4],
-                        created_at=user[5])
+                        user_type=user[3],
+                        created_at=user[4])
             return jsonify({"success": True, "user": user.to_dict()}), 200
         except Exception as e:
             raise Exception(
@@ -92,9 +121,15 @@ class ModelUser():
             print("Connection closed")
 
     @classmethod
-    def update_user(cls, db, id, data_user):
+    def update_user(cls, id, data_user):
         try:
             cursor = db.cursor()
+            sql = "SELECT id FROM users WHERE id = %s"
+            cursor.execute(sql, (id,))
+            user = cursor.fetchone()
+            if not user:
+                return jsonify({"success": False, "message": "Usuario no encontrado"}), 404
+
             sql = "UPDATE users SET "
             set_values = []
             values = []
@@ -107,11 +142,32 @@ class ModelUser():
             if 'password' in data_user:
                 set_values.append("password = %s")
                 values.append(data_user['password'])
+
             values.append(id)
             sql = f"UPDATE users SET {', '.join(set_values)} WHERE id = %s"
             cursor.execute(sql, tuple(values))
             db.commit()
             return jsonify({"success": True, "message": f'Usuario actualizado con éxito'}), 200
+        except Exception as e:
+            raise Exception(
+                f"Error al conectar con la base de datos: {str(e)}")
+        finally:
+            cursor.close()
+            print("Connection closed")
+
+    @classmethod
+    def delete_user(cls, id):
+        try:
+            cursor = db.cursor()
+            sql = "SELECT id FROM users WHERE id = %s"
+            cursor.execute(sql, (id,))
+            user = cursor.fetchone()
+            if not user:
+                return jsonify({"success": False, "message": "Usuario no encontrado"}), 404
+
+            cursor.execute("DELETE FROM users WHERE id = %s", (id,))
+            db.commit()
+            return jsonify({"success": True, "message": f'Usuario eliminado con éxito'}), 200
         except Exception as e:
             raise Exception(
                 f"Error al conectar con la base de datos: {str(e)}")
