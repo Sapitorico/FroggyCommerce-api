@@ -31,24 +31,24 @@ class TestModelUser(unittest.TestCase):
                 "data": {
                     "full_name": "John Doe",
                 },
-                "expected_error": "Faltan los siguientes campos: email, password.",
+                "expected_error": "Faltan los siguientes campos: email, password",
             },
             {
                 "data": {
                     "email": "john@example.com",
                 },
-                "expected_error": "Faltan los siguientes campos: full_name, password.",
+                "expected_error": "Faltan los siguientes campos: full_name, password",
             },
             {
                 "data": {
                     "password": "12345678",
                 },
-                "expected_error": "Faltan los siguientes campos: full_name, email.",
+                "expected_error": "Faltan los siguientes campos: full_name, email",
             },
             {
                 "data": {
                 },
-                "expected_error": "No se proporcionaron datos.",
+                "expected_error": "No se proporcionaron datos",
             },
             {
                 "data": {
@@ -56,7 +56,7 @@ class TestModelUser(unittest.TestCase):
                     "email": "john@example.com",
                     "password": "12345678",
                 },
-                "expected_error": "El nombre completo debe contener al menos nombre y apellido.",
+                "expected_error": "El campo full_name debe contener un nombre y apellido",
             },
             {
                 "data": {
@@ -64,7 +64,7 @@ class TestModelUser(unittest.TestCase):
                     "email": "johnexample.com",
                     "password": "12345678",
                 },
-                "expected_error": "Formato de correo electrónico inválido.",
+                "expected_error": "Formato de correo electrónico inválido",
             },
             {
                 "data": {
@@ -72,7 +72,7 @@ class TestModelUser(unittest.TestCase):
                     "email": "john@example.com",
                     "password": "1234567",
                 },
-                "expected_error": "La contraseña debe tener al menos 8 caracteres.",
+                "expected_error": "La contraseña debe tener por lo menos 8 caracteres",
             },
         ]
         for i, case in enumerate(validation_cases):
@@ -107,32 +107,32 @@ class TestModelUser(unittest.TestCase):
                 "data": {
                     "email": "john@example.com",
                 },
-                "expected_error": "Faltan los siguientes campos: password.",
+                "expected_error": "Faltan los siguientes campos: password",
             },
             {
                 "data": {
                     "password": "12345678",
                 },
-                "expected_error": "Faltan los siguientes campos: email.",
+                "expected_error": "Faltan los siguientes campos: email",
             },
             {
                 "data": {
                 },
-                "expected_error": "No se proporcionaron datos.",
+                "expected_error": "No se proporcionaron datos",
             },
             {
                 "data": {
                     "email": "johnexample.com",
                     "password": "12345678",
                 },
-                "expected_error": "Formato de correo electrónico inválido.",
+                "expected_error": "Formato de correo electrónico inválido",
             },
             {
                 "data": {
                     "email": "john@example.com",
                     "password": "1234567",
                 },
-                "expected_error": "La contraseña debe tener al menos 8 caracteres.",
+                "expected_error": "La contraseña debe tener por lo menos 8 caracteres",
             },
         ]
         for i, case in enumerate(validation_cases):

@@ -32,7 +32,7 @@ class TestModelUser(unittest.TestCase):
 
         self.assertTrue(response[0].json["success"])
         self.assertEqual(response[0].json["message"],
-                         "Inicio de sesión exitoso.")
+                         "Inicio de sesión exitoso")
         self.assertIn("token", response[0].json)
         self.assertEqual(response[0].json["user"]["id"], 1)
         self.assertEqual(response[0].json["user"]["full_name"], "John Doe")
@@ -52,7 +52,7 @@ class TestModelUser(unittest.TestCase):
 
         self.assertFalse(response[0].json["success"])
         self.assertEqual(response[0].json["message"],
-                         "Credenciales incorrectas.")
+                         "Credenciales incorrectas")
 
     def test_login_user_not_found(self):
         mock_cursor = MagicMock()
@@ -69,7 +69,7 @@ class TestModelUser(unittest.TestCase):
 
         self.assertFalse(response[0].json["success"])
         self.assertEqual(response[0].json["message"],
-                         "Credenciales incorrectas.")
+                         "Credenciales incorrectas")
 
     def test_login_user_not_email(self):
         mock_cursor = MagicMock()
@@ -86,7 +86,7 @@ class TestModelUser(unittest.TestCase):
 
         self.assertFalse(response[0].json["success"])
         self.assertEqual(response[0].json["message"],
-                         "Credenciales incorrectas.")
+                         "Credenciales incorrectas")
 
     def test_register_user(self):
         mock_cursor = MagicMock()
@@ -100,7 +100,7 @@ class TestModelUser(unittest.TestCase):
 
         self.assertTrue(response[0].json["success"])
         self.assertEqual(response[0].json["message"],
-                         f"Usuario {full_name} registrado con éxito.")
+                         f"Usuario {full_name} registrado con éxito")
 
     def test_register_user_already_exists(self):
         mock_cursor = MagicMock()
@@ -117,7 +117,8 @@ class TestModelUser(unittest.TestCase):
         response = ModelUser.register(self.db, user)
 
         self.assertFalse(response[0].json["success"])
-        self.assertEqual(response[0].json["message"], "El usuario ya existe.")
+        self.assertEqual(response[0].json["message"],
+                         "Este usuario ya fue registrado")
 
 
 if __name__ == '__main__':
