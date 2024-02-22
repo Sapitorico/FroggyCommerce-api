@@ -35,13 +35,13 @@ class ModelUser():
             cursor.execute(sql, (user_id, user.full_name, user.email,
                            user.password, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
             db.commit()
+            return jsonify({"success": True, "message": f'Usuario {user.full_name} registrado con éxito'}), 201
         except Exception as e:
             raise Exception(
                 f"Error al conectar con la base de datos: {str(e)}")
         finally:
             cursor.close()
             print("Connection closed")
-        return jsonify({"success": True, "message": f'Usuario {user.full_name} registrado con éxito'}), 201
 
     @classmethod
     def login(cls, user):

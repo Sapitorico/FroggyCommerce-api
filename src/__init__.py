@@ -18,6 +18,6 @@ def init_app(config):
 
     app.register_blueprint(AuthRoutes.auth, url_prefix='/api/auth')
     app.register_blueprint(UserRoutes.user, url_prefix='/api/users')
-    app.register_blueprint(ProductRoutes.product, url_prefix='/api/product')
+    app.register_blueprint(ProductRoutes.product, url_prefix='/api/products')
 
     return app

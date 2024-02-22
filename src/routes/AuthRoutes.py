@@ -19,13 +19,10 @@ def register():
         validation_error = ModelUser.validate_data_register(data)
         if validation_error:
             return validation_error
-        current_datetime = datetime.now()
-        user = User(id=str(uuid4()),
-                    full_name=data.get('full_name'),
+        user = User(full_name=data.get('full_name'),
                     email=data.get('email'),
                     password=User.hash_password(data.get('password')),
-                    user_type='customer',
-                    created_at=current_datetime)
+                    user_type='customer')
         response = ModelUser.register(user)
         return response
 
