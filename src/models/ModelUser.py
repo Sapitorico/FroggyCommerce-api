@@ -14,6 +14,8 @@ from src.database.db_conection import connect_to_mysql
 
 # Database connection:
 db = connect_to_mysql()
+
+
 class ModelUser():
 
     @classmethod
@@ -63,7 +65,7 @@ class ModelUser():
                 return jsonify({"success": False, "message": "Credenciales incorrectas"}), 400
             if user.password == False:
                 return jsonify({"success": False, "message": "Credenciales incorrectas"}), 400
-            token = Security.getnerate_token(user)
+            token = Security.generate_token(user)
             response_data = {
                 "success": True,
                 "message": "Inicio de sesión exitoso",
