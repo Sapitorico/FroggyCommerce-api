@@ -55,5 +55,8 @@ def update_product(id):
         return access_result
     if request.method == 'PUT':
         data = request.json
-        
-        return "sapardo loco"
+        valid_data = Product.validate(data)
+        if valid_data:
+            return valid_data
+        response = ModelProduct.update_product(id, data)
+        return response

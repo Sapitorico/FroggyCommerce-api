@@ -113,3 +113,47 @@ class ModelProduct():
             raise Exception(f"Error: {str(e)}")
         finally:
             cursor.close()
+
+    @classmethod
+    def update_product(cls, id, product):
+        try:
+            cursor = db.cursor()
+            sql = "SELECT id FROM products WHERE id = %s"
+            cursor.execute(sql, (id,))
+            existing_product = cursor.fetchone()
+            if not existing_product:
+                return jsonify({"success": False, "message": "Producto no encontrado"}), 404
+
+            sql = "SELECT id FROM categories WHERE name = %s"
+            cursor.execute(sql, (product['category'],))
+            category_row = cursor.fetchone()
+
+            if category_row:
+                category_id = category_row[0]
+            else:
+                category_id = str(uuid.uuid4())
+                sql = """ INSERT INTO categories (id, name) VALUES (%s, %s) """
+                cursor.execute(sql, (category_id, product['category'],))
+            sql = """
+                UPDATE products
+                SET name = %s,
+                    description = %s,
+                    price = %s,
+                    stock = %s,
+                    category_id = %s,
+                    updated_at = %s
+                WHERE id = %s
+            """
+            cursor.execute(sql, (product['name'],
+                                 product['description'],
+                                 product['price'],
+                                 product['stock'],
+                                 category_id,
+                                 datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+                                 id))
+            db.commit()
+            return jsonify({"success": True, "message": "Producto actualizado con éxito"}), 200
+        except Exception as e:
+            raise Exception(f"Error: {str(e)}")
+        finally:
+            cursor.close()
