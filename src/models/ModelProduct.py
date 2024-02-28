@@ -157,3 +157,21 @@ class ModelProduct():
             raise Exception(f"Error: {str(e)}")
         finally:
             cursor.close()
+
+    @classmethod
+    def delete_product(cls, id):
+        try:
+            cursor = db.cursor()
+            sql = "SELECT id FROM products WHERE id = %s"
+            cursor.execute(sql, (id,))
+            existing_product = cursor.fetchone()
+            if not existing_product:
+                return jsonify({"success": False, "message": "Producto no encontrado"}), 404
+            sql = "DELETE FROM products WHERE id = %s"
+            cursor.execute(sql, (id,))
+            db.commit()
+            return jsonify({"success": True, "message": "Producto eliminado con éxito"}), 200
+        except Exception as e:
+            raise Exception(f"Error: {str(e)}")
+        finally:
+            cursor.close()

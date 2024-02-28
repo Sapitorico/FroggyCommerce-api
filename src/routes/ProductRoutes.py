@@ -60,3 +60,12 @@ def update_product(id):
             return valid_data
         response = ModelProduct.update_product(id, data)
         return response
+
+
+@product.route('/delete/<id>', methods=['DELETE'])
+def delete_product(id):
+    access_result = Security.verify_admin(request.headers)
+    if access_result:
+        return access_result
+    response = ModelProduct.delete_product(id)
+    return response
