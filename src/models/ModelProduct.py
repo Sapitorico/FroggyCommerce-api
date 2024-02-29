@@ -2,12 +2,12 @@ import uuid
 from datetime import datetime
 from flask import jsonify
 
-from src.database.db_conection import connect_to_mysql
+from src.database.db_conection import DBConnection
 
 # Entities
 from src.models.entities.Products import Product
 
-db = connect_to_mysql()
+db = DBConnection()
 
 
 class ModelProduct():
@@ -15,7 +15,7 @@ class ModelProduct():
     @classmethod
     def create(cls, product):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
 
             sql = "SELECT id FROM products WHERE name = %s"
             cursor.execute(sql, (product.name,))
@@ -53,7 +53,7 @@ class ModelProduct():
                                  datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                                  datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
 
-            db.commit()
+            db.connection.commit()
             return jsonify({"success": True, "message": 'Producto creado con éxito'}), 201
         except Exception as e:
             raise Exception(
@@ -64,7 +64,7 @@ class ModelProduct():
     @classmethod
     def get_products(cls):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
             sql = """
                 SELECT p.id, p.name, p.description, p.price, p.stock, c.name as category, p.created_at, p.updated_at
                 FROM products p
@@ -89,7 +89,7 @@ class ModelProduct():
     @classmethod
     def get_product_by_id(cls, id):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
             sql = """
                 SELECT p.id, p.name, p.description, p.price, p.stock, c.name as category, p.created_at, p.updated_at
                 FROM products p
@@ -117,7 +117,7 @@ class ModelProduct():
     @classmethod
     def update_product(cls, id, product):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
             sql = "SELECT id FROM products WHERE id = %s"
             cursor.execute(sql, (id,))
             existing_product = cursor.fetchone()
@@ -151,7 +151,7 @@ class ModelProduct():
                                  category_id,
                                  datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
                                  id))
-            db.commit()
+            db.connection.commit()
             return jsonify({"success": True, "message": "Producto actualizado con éxito"}), 200
         except Exception as e:
             raise Exception(f"Error: {str(e)}")
@@ -161,7 +161,7 @@ class ModelProduct():
     @classmethod
     def delete_product(cls, id):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
             sql = "SELECT id FROM products WHERE id = %s"
             cursor.execute(sql, (id,))
             existing_product = cursor.fetchone()
@@ -169,7 +169,7 @@ class ModelProduct():
                 return jsonify({"success": False, "message": "Producto no encontrado"}), 404
             sql = "DELETE FROM products WHERE id = %s"
             cursor.execute(sql, (id,))
-            db.commit()
+            db.connection.commit()
             return jsonify({"success": True, "message": "Producto eliminado con éxito"}), 200
         except Exception as e:
             raise Exception(f"Error: {str(e)}")

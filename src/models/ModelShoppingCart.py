@@ -3,9 +3,9 @@
 from uuid import uuid4
 
 from flask import jsonify
-from src.database.db_conection import connect_to_mysql
+from src.database.db_conection import DBConnection
 
-db = connect_to_mysql()
+db = DBConnection()
 
 
 class ModelShoppingCart():
@@ -13,7 +13,7 @@ class ModelShoppingCart():
     @classmethod
     def get_cart(cls, user_id):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
             sql = "SELECT shopping_cart.product_id, products.name, products.price, shopping_cart.quantity, (products.price * shopping_cart.quantity) AS total FROM shopping_cart INNER JOIN products ON shopping_cart.product_id = products.id WHERE shopping_cart.customer_id = %s"
             cursor.execute(sql, (user_id,))
             result = cursor.fetchall()
@@ -42,7 +42,7 @@ class ModelShoppingCart():
     @classmethod
     def add_to_cart(cls, user_id, data):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
 
             product_id = data['product_id']
             cursor.execute(
@@ -59,14 +59,14 @@ class ModelShoppingCart():
             if result:
                 sql = "UPDATE shopping_cart SET quantity = %s WHERE id = %s"
                 cursor.execute(sql, (data['quantity'], result[0]))
-                db.commit()
+                db.connection.commit()
                 return jsonify({"success": True, "message": "Producto agregado al carrito con éxito"}), 201
 
             sql = "INSERT INTO shopping_cart (id, customer_id, product_id, quantity) VALUES (%s, %s, %s, %s)"
             cart_id = str(uuid4())
             cursor.execute(
                 sql, (cart_id, user_id, product_id, data['quantity']))
-            db.commit()
+            db.connection.commit()
             return jsonify({"success": True, "message": "Producto agregado al carrito con éxito"}), 201
 
         except Exception as e:
@@ -78,7 +78,7 @@ class ModelShoppingCart():
     @classmethod
     def remove_to_cart(cls, user_id, product_id):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
 
             sql = "SELECT id FROM shopping_cart WHERE customer_id = %s AND product_id = %s"
             cursor.execute(sql, (user_id, product_id))
@@ -89,7 +89,7 @@ class ModelShoppingCart():
 
             sql = "DELETE FROM shopping_cart WHERE customer_id = %s AND product_id = %s"
             cursor.execute(sql, (user_id, product_id))
-            db.commit()
+            db.connection.commit()
             return jsonify({"success": True, "message": "Producto eliminado del carrito con éxito"}), 200
 
         except Exception as e:

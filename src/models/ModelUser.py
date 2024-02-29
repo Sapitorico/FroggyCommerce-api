@@ -13,10 +13,10 @@ from src.models.ModelShoppingCart import ModelShoppingCart
 from src.models.entities.Users import User
 
 # Database
-from src.database.db_conection import connect_to_mysql
+from src.database.db_conection import DBConnection
 
 # Database connection:
-db = connect_to_mysql()
+db = DBConnection()
 
 
 class ModelUser():
@@ -24,7 +24,7 @@ class ModelUser():
     @classmethod
     def register(cls, user):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
             cursor.execute(
                 "SELECT email FROM users WHERE email = %s", (user.email,))
             existing_user = cursor.fetchone()
@@ -39,7 +39,7 @@ class ModelUser():
             user_id = str(uuid.uuid4())
             cursor.execute(sql, (user_id, user.full_name, user.email,
                            user.password, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-            db.commit()
+            db.connection.commit()
             return jsonify({"success": True, "message": f'Usuario {user.full_name} registrado con éxito'}), 201
         except Exception as e:
             raise Exception(
@@ -51,7 +51,7 @@ class ModelUser():
     @classmethod
     def login(cls, user):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
             cursor.execute(
                 "SELECT * FROM users WHERE email = %s", (user.email,))
             existing_user = cursor.fetchone()
@@ -86,7 +86,7 @@ class ModelUser():
     @classmethod
     def get_users(cls):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
             cursor.execute(
                 "SELECT id, full_name, email, user_type, created_at FROM users WHERE user_type = 'customer'")
             users = cursor.fetchall()
@@ -106,7 +106,7 @@ class ModelUser():
     @classmethod
     def get_user_by_id(cls, id):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
             sql = "SELECT id, full_name, email, user_type, created_at FROM users WHERE id = %s"
             cursor.execute(sql, (id,))
             user = cursor.fetchone()
@@ -128,7 +128,7 @@ class ModelUser():
     @classmethod
     def update_user(cls, id, data_user):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
             sql = "SELECT id FROM users WHERE id = %s"
             cursor.execute(sql, (id,))
             user = cursor.fetchone()
@@ -151,7 +151,7 @@ class ModelUser():
             values.append(id)
             sql = f"UPDATE users SET {', '.join(set_values)} WHERE id = %s"
             cursor.execute(sql, tuple(values))
-            db.commit()
+            db.connection.commit()
             return jsonify({"success": True, "message": f'Usuario actualizado con éxito'}), 200
         except Exception as e:
             raise Exception(
@@ -163,7 +163,7 @@ class ModelUser():
     @classmethod
     def delete_user(cls, id):
         try:
-            cursor = db.cursor()
+            cursor = db.connection.cursor()
             sql = "SELECT id FROM users WHERE id = %s"
             cursor.execute(sql, (id,))
             user = cursor.fetchone()
@@ -171,7 +171,7 @@ class ModelUser():
                 return jsonify({"success": False, "message": "Usuario no encontrado"}), 404
 
             cursor.execute("DELETE FROM users WHERE id = %s", (id,))
-            db.commit()
+            db.connection.commit()
             return jsonify({"success": True, "message": f'Usuario eliminado con éxito'}), 200
         except Exception as e:
             raise Exception(
