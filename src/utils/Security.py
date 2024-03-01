@@ -1,8 +1,9 @@
+from functools import wraps
 import jwt
 import pytz
 from os import getenv
 from datetime import datetime, timedelta
-from flask import jsonify
+from flask import jsonify, request
 
 
 class Security():
@@ -40,19 +41,36 @@ class Security():
             return jsonify({"success": False, "message": "Invalid token"}), 403
 
     @classmethod
-    def verify_admin(cls, headers):
-        payload = cls.verify_token(headers)
-        if isinstance(payload, tuple):
-            return payload
-        if payload.get('user_type') == "admin":
-            return None
-        return jsonify({"success": False, "message": "Unauthorized"}), 403
+    def verify_admin(cls, func):
+        @wraps(func)
+        def decorated_function(*args, **kwargs):
+            headers = request.headers
+            payload = cls.verify_token(headers)
+            if isinstance(payload, tuple):
+                return payload
+            if payload.get('user_type') == "admin":
+                return func(*args, **kwargs)
+            return jsonify({"success": False, "message": "Unauthorized"}), 403
+        return decorated_function
 
+    # @classmethod
+    # def verify_session(cls, headers):
+    #     payload = cls.verify_token(headers)
+    #     if isinstance(payload, tuple):
+    #         return payload
+    #     if payload.get('id'):
+    #         return payload.get('id')
+    #     return jsonify({"success": False, "message": "Unauthorized"}), 403
     @classmethod
-    def verify_session(cls, headers):
-        payload = cls.verify_token(headers)
-        if isinstance(payload, tuple):
-            return payload
-        if payload.get('id'):
-            return payload.get('id')
-        return jsonify({"success": False, "message": "Unauthorized"}), 403
+    def verify_session(cls, func):
+        @wraps(func)
+        def decorated_function(*args, **kwargs):
+            headers = request.headers
+            payload = cls.verify_token(headers)
+            if isinstance(payload, tuple):
+                return payload
+            user_id = payload.get('id')
+            if user_id:
+                return func(user_id, *args, **kwargs)
+            return jsonify({"success": False, "message": "Unauthorized"}), 403
+        return decorated_function

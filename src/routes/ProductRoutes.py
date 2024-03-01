@@ -11,9 +11,6 @@ product = Blueprint('product', __name__)
 
 @product.route('/', methods=['GET'])
 def get_products():
-    access_result = Security.verify_session(request.headers)
-    if isinstance(access_result, tuple):
-        return access_result
     if request.method == 'GET':
         response = ModelProduct.get_products()
         return response
@@ -21,19 +18,14 @@ def get_products():
 
 @product.route('/<id>', methods=['GET'])
 def get_product(id):
-    access_result = Security.verify_session(request.headers)
-    if isinstance(access_result, tuple):
-        return access_result
     if request.method == 'GET':
         response = ModelProduct.get_product_by_id(id)
         return response
 
 
 @product.route('/create', methods=['POST'])
+@Security.verify_admin
 def create_product():
-    access_result = Security.verify_admin(request.headers)
-    if access_result:
-        return access_result
     if request.method == 'POST':
         data = request.json
         valid_data = Product.validate(data)
@@ -49,10 +41,8 @@ def create_product():
 
 
 @product.route('/update/<id>', methods=['PUT'])
+@Security.verify_admin
 def update_product(id):
-    access_result = Security.verify_admin(request.headers)
-    if access_result:
-        return access_result
     if request.method == 'PUT':
         data = request.json
         valid_data = Product.validate(data)
@@ -63,9 +53,8 @@ def update_product(id):
 
 
 @product.route('/delete/<id>', methods=['DELETE'])
+@Security.verify_admin
 def delete_product(id):
-    access_result = Security.verify_admin(request.headers)
-    if access_result:
-        return access_result
-    response = ModelProduct.delete_product(id)
-    return response
+    if request.method == 'DELETE':
+        response = ModelProduct.delete_product(id)
+        return response

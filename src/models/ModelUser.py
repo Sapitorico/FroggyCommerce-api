@@ -25,28 +25,20 @@ class ModelUser():
     def register(cls, user):
         try:
             cursor = db.connection.cursor()
-            cursor.execute(
-                "SELECT email FROM users WHERE email = %s", (user.email,))
-            existing_user = cursor.fetchone()
-            if existing_user:
-                return jsonify({"success": False, "message": "Este usuario ya fue registrado"}), 400
-            sql = """ INSERT INTO users (id,
-                                        full_name,
-                                        email,
-                                        password,
-                                        user_type,
-                                        created_at) VALUES (%s, %s, %s, %s, 'customer', %s) """
             user_id = str(uuid.uuid4())
-            cursor.execute(sql, (user_id, user.full_name, user.email,
-                           user.password, datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
-            db.connection.commit()
-            return jsonify({"success": True, "message": f'Usuario {user.full_name} registrado con éxito'}), 201
+            cursor.callproc(
+                "Register", (user_id, user.full_name, user.email, user.password))
+            for result in cursor.stored_results():
+                message = result.fetchone()[0]
+            if message == 'already_exists':
+                return jsonify({"success": False, "message": "Este usuario ya fue registrado"}), 400
+            elif message == 'success':
+                db.connection.commit()
+                return jsonify({"success": True, "message": f'Usuario \'{user.full_name}\' registrado con éxito'}), 201
         except Exception as e:
-            raise Exception(
-                f"Error al conectar con la base de datos: {str(e)}")
+            return jsonify({"success": False, "Error": str(e)})
         finally:
             cursor.close()
-            print("Connection closed")
 
     @classmethod
     def login(cls, user):
