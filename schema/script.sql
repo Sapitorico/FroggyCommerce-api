@@ -29,7 +29,8 @@ CREATE TABLE IF NOT EXISTS `ecommerce_db`.`users` (
   `email` VARCHAR(150) NOT NULL,
   `password` VARCHAR(255) NOT NULL,
   `user_type` ENUM('admin', 'customer') NOT NULL,
-  `created_at` TIMESTAMP NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
   UNIQUE INDEX `email_UNIQUE` (`email` ASC) VISIBLE);
@@ -55,8 +56,8 @@ CREATE TABLE IF NOT EXISTS `ecommerce_db`.`products` (
   `price` DECIMAL(10,2) NOT NULL,
   `stock` INT NULL DEFAULT NULL,
   `category_id` VARCHAR(36) NOT NULL,
-  `created_at` TIMESTAMP NOT NULL,
-  `updated_at` TIMESTAMP NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   INDEX `fk_products_category_id_idx` (`category_id` ASC) VISIBLE,
   CONSTRAINT `fk_products_category_id`
@@ -72,8 +73,8 @@ CREATE TABLE IF NOT EXISTS `ecommerce_db`.`orders` (
   `customer_id` VARCHAR(36) NOT NULL,
   `order_date` DATETIME NOT NULL,
   `status` ENUM('processing', 'shipped', 'canceled') NOT NULL,
-  `created_at` TIMESTAMP NOT NULL DEFAULT now(),
-  `updated_at` TIMESTAMP NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   INDEX `fk_orders_customer_id_idx` (`customer_id` ASC) VISIBLE,
   CONSTRAINT `fk_orders_customer_id`

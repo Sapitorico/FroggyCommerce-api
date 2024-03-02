@@ -84,7 +84,7 @@ CREATE TABLE `orders` (
   `order_date` datetime NOT NULL,
   `status` enum('processing','shipped','canceled') NOT NULL,
   `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NOT NULL,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `fk_orders_customer_id_idx` (`customer_id`),
   CONSTRAINT `fk_orders_customer_id` FOREIGN KEY (`customer_id`) REFERENCES `users` (`id`)
@@ -114,8 +114,8 @@ CREATE TABLE `products` (
   `price` decimal(10,2) NOT NULL,
   `stock` int DEFAULT NULL,
   `category_id` varchar(36) NOT NULL,
-  `created_at` timestamp NOT NULL,
-  `updated_at` timestamp NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `fk_products_category_id_idx` (`category_id`),
   CONSTRAINT `fk_products_category_id` FOREIGN KEY (`category_id`) REFERENCES `categories` (`id`)
@@ -128,7 +128,7 @@ CREATE TABLE `products` (
 
 LOCK TABLES `products` WRITE;
 /*!40000 ALTER TABLE `products` DISABLE KEYS */;
-INSERT INTO `products` VALUES ('28df63c3-902f-4dd9-8a8d-e064ec4a7f7d','Pantalones de mezclilla','Pantalones informales y duraderos',40,75,'965017dd-fac4-4d4a-b2bd-c780b6c86f8a','2024-02-27 18:33:53','2024-02-27 18:33:53'),('bac24cb7-982e-4586-9b9a-1fa29595a23d','Zapatos deportivos','Zapatos cómodos y resistentes para practicar deportes',60,90,'c5af21f8-0623-4805-8b5e-571b315a54bf','2024-02-27 18:34:42','2024-02-27 18:34:42');
+INSERT INTO `products` VALUES ('28df63c3-902f-4dd9-8a8d-e064ec4a7f7d','Pantalones de mezclilla','Pantalones informales y duraderos',40.00,75,'965017dd-fac4-4d4a-b2bd-c780b6c86f8a','2024-02-27 18:33:53','2024-02-27 18:33:53'),('bac24cb7-982e-4586-9b9a-1fa29595a23d','Zapatos deportivos','Zapatos cómodos y resistentes para practicar deportes',60.00,90,'c5af21f8-0623-4805-8b5e-571b315a54bf','2024-02-27 18:34:42','2024-02-27 18:34:42'),('eed9ca2c-0994-475a-af43-813bce1e4f81','Zapatillas deportivas','Zapatillas cómodas y ligeras para actividades deportivas',59.99,100,'c5af21f8-0623-4805-8b5e-571b315a54bf','2024-02-28 20:39:10','2024-02-28 20:39:10');
 /*!40000 ALTER TABLE `products` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -158,6 +158,7 @@ CREATE TABLE `shopping_cart` (
 
 LOCK TABLES `shopping_cart` WRITE;
 /*!40000 ALTER TABLE `shopping_cart` DISABLE KEYS */;
+INSERT INTO `shopping_cart` VALUES ('166a47db-6848-4f1b-868d-d82f02375ba0','15328d50-f326-4067-86d7-a3248f1f450f','eed9ca2c-0994-475a-af43-813bce1e4f81',3),('b4042c04-d878-4c6b-aa45-8ef6217af25d','15328d50-f326-4067-86d7-a3248f1f450f','28df63c3-902f-4dd9-8a8d-e064ec4a7f7d',3),('fcc9546b-4e3b-495e-881e-846c933db2c5','15328d50-f326-4067-86d7-a3248f1f450f','bac24cb7-982e-4586-9b9a-1fa29595a23d',3);
 /*!40000 ALTER TABLE `shopping_cart` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -174,7 +175,8 @@ CREATE TABLE `users` (
   `email` varchar(150) NOT NULL,
   `password` varchar(255) NOT NULL,
   `user_type` enum('admin','customer') NOT NULL,
-  `created_at` timestamp NOT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id_UNIQUE` (`id`),
   UNIQUE KEY `email_UNIQUE` (`email`)
@@ -187,7 +189,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
-INSERT INTO `users` VALUES ('264935f5-3928-4890-a2b1-9f7327256e89','Samantha Davis','sam.davis79@example.com','$2b$12$099fuZYDBhNKEih3vg1CFeIq6IxAfKqzNKzxeIttrt0c3Rsz7I.ee','customer','2024-02-21 21:28:40'),('cc7077ea-7b9a-4b20-a9e3-40c07871b029','Samantha Brown','samantha.brown82@example.com','$2b$12$kXWCnU8PNYLse5WTEwQDKeePT4nsBRbSA8aei2v5rPo9Rg6AVAGMm','customer','2024-02-21 19:49:10'),('e9722742-53e2-4b0e-aa10-aed62e726d56','Renzo Yaques','renzoyaques@gmail.com','$2b$12$1S6b2XD3OkdTg1Qw6Jm9mOheGNPvbkUkd4bI0U0FR/d6O95WpVXDy','admin','2024-02-20 16:32:50');
+INSERT INTO `users` VALUES ('15328d50-f326-4067-86d7-a3248f1f450f','User Test','user@example.com','$2b$12$./CGPwKVshBHmxSKOVVheu33krJNPhUB1gUuSDpx83xSF3U4QEycC','customer','2024-02-28 20:15:36', '2024-02-28 20:15:36'),('264935f5-3928-4890-a2b1-9f7327256e89','Samantha Davis','sam.davis79@example.com','$2b$12$099fuZYDBhNKEih3vg1CFeIq6IxAfKqzNKzxeIttrt0c3Rsz7I.ee','customer','2024-02-21 21:28:40', '2024-02-28 20:15:36'),('cc7077ea-7b9a-4b20-a9e3-40c07871b029','Samantha Brown','samantha.brown82@example.com','$2b$12$kXWCnU8PNYLse5WTEwQDKeePT4nsBRbSA8aei2v5rPo9Rg6AVAGMm','customer','2024-02-21 19:49:10', '2024-02-28 20:15:36'),('e9722742-53e2-4b0e-aa10-aed62e726d56','Renzo Yaques','renzoyaques@gmail.com','evolina553','admin','2024-02-20 16:32:50', '2024-02-28 20:15:36');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -200,4 +202,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-02-28 13:30:14
+-- Dump completed on 2024-03-01 18:46:54

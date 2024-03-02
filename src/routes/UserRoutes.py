@@ -32,7 +32,7 @@ def get_profile_user(user_id):
 def update_user(user_id):
     if request.method == 'POST':
         data = request.json
-        valid_data = ModelUser.validate_data_update(data)
+        valid_data = ModelUser.validate(data)
         if valid_data:
             return valid_data
         response = ModelUser.update_user(user_id, data)

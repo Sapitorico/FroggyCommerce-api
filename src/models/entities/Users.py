@@ -1,49 +1,43 @@
-import re
-from bcrypt import checkpw, gensalt, hashpw
-from flask import jsonify
 
 
 class User():
+    """
+    The User class represents a user in the system.
+
+    Attributes:
+        id : The ID of the user.
+        full_name : The full name of the user.
+        email : The user's email address.
+        password : The user's password.
+        user_type : The user's type.
+        created_at: The date and time the user was created.
+        updated_at : The date and time of the user's last update.
+    """
 
     def __init__(self, **kwargs):
+        """
+        Initializes the instance of the User class.
+
+        Args:
+            **kwargs: a dictionary of keyword arguments. The keywords must match the names of the class attributes.
+        """
         self.id = kwargs.get('id')
         self.full_name = kwargs.get('full_name')
         self.email = kwargs.get('email')
         self.password = kwargs.get('password')
         self.user_type = kwargs.get('user_type')
         self.created_at = kwargs.get('created_at')
-
-    @staticmethod
-    def hash_password(password):
-        return hashpw(password.encode('utf-8'), gensalt()).decode('utf-8')
-
-    @staticmethod
-    def check_password(hashed_password, password):
-        return checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
-
-    @staticmethod
-    def validate_email(email):
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            return jsonify({"success": False, "message": "Formato de correo electrónico inválido"}), 400
-        return None
-
-    @staticmethod
-    def validate_password(password):
-        if len(password) < 8:
-            return jsonify({"success": False, "message": "La contraseña debe tener por lo menos 8 caracteres"}), 400
-        return None
-
-    @staticmethod
-    def validate_full_name(full_name):
-        if len(full_name.split(' ')) < 2:
-            return jsonify({"success": False, "message": "El campo full_name debe contener un nombre y apellido"}), 400
-        return None
+        self.updated_at = kwargs.get('updated_at')
 
     def to_dict(self):
+        """
+        Converts the User object to a dictionary.
+        """
         return {
             "id": self.id,
             "full_name": self.full_name,
             "email": self.email,
             "user_type": self.user_type,
-            "created_at": self.created_at.strftime('%Y-%m-%d %H:%M:%S')
+            "created_at": self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            "updated_at": self.updated_at.strftime('%Y-%m-%d %H:%M:%S')
         }

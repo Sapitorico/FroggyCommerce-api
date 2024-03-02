@@ -23,6 +23,16 @@ class ModelUser():
 
     @classmethod
     def register(cls, user):
+        """
+        This method registers a new user in the database.
+
+        If the user already exists in the database, the stored procedure will return 'already_exists'.
+        If the registration is successful, it will return 'success'.
+
+        Parameters:
+        user (User): The User object containing the user's details.
+
+        """
         try:
             cursor = db.connection.cursor()
             user_id = str(uuid.uuid4())
@@ -31,10 +41,10 @@ class ModelUser():
             for result in cursor.stored_results():
                 message = result.fetchone()[0]
             if message == 'already_exists':
-                return jsonify({"success": False, "message": "Este usuario ya fue registrado"}), 400
+                return jsonify({"success": False, "message": "This 'user' is already registered"}), 400
             elif message == 'success':
                 db.connection.commit()
-                return jsonify({"success": True, "message": f'Usuario \'{user.full_name}\' registrado con éxito'}), 201
+                return jsonify({"success": True, "message": f"User '{user.full_name}' successfully registered"}), 201
         except Exception as e:
             return jsonify({"success": False, "Error": str(e)})
         finally:
@@ -42,186 +52,192 @@ class ModelUser():
 
     @classmethod
     def login(cls, user):
+        """
+        This method is used to log in a user.
+
+        Parameters:
+        user (User): a user object containing the user's email and password.
+
+        Returns:
+        A JSON object containing a success or failure message, and an HTTP status code.
+        """
         try:
             cursor = db.connection.cursor()
-            cursor.execute(
-                "SELECT * FROM users WHERE email = %s", (user.email,))
-            existing_user = cursor.fetchone()
+            cursor.callproc("Login", (user.email,))
+            for result in cursor.stored_results():
+                existing_user = result.fetchone()
             if not existing_user:
-                return jsonify({"success": False, "message": "Credenciales incorrectas"}), 400
+                return jsonify({"success": False, "message": "Incorrect credentials"}), 400
             user = User(id=existing_user[0],
                         full_name=existing_user[1],
                         email=existing_user[2],
                         password=User.check_password(
                             existing_user[3], user.password),
                         user_type=existing_user[4],
-                        created_at=existing_user[5])
-            if user == None:
-                return jsonify({"success": False, "message": "Credenciales incorrectas"}), 400
+                        created_at=existing_user[5],
+                        updated_at=existing_user[6])
             if user.password == False:
-                return jsonify({"success": False, "message": "Credenciales incorrectas"}), 400
+                return jsonify({"success": False, "message": "Incorrect credentials"}), 400
             token = Security.generate_token(user)
             response_data = {
                 "success": True,
-                "message": "Inicio de sesión exitoso",
+                "message": f"Successful login, welcome \'{user.full_name}\'",
                 "user": user.to_dict(),
                 "token": token
             }
             return jsonify(response_data), 200
         except Exception as e:
-            raise Exception(
-                f"Error al conectar con la base de datos: {str(e)}")
+            return jsonify({"success": False, "Error": str(e)})
         finally:
             cursor.close()
-            print("Connection closed")
 
     @classmethod
     def get_users(cls):
+        """"
+        This method is used to get a list of all users.
+
+        Returns:
+        A JSON object containing a list of users and an HTTP status code 200 in case of success.
+        """
         try:
             cursor = db.connection.cursor()
-            cursor.execute(
-                "SELECT id, full_name, email, user_type, created_at FROM users WHERE user_type = 'customer'")
-            users = cursor.fetchall()
+            cursor.callproc(
+                "List_customers")
+            for result in cursor.stored_results():
+                users = result.fetchall()
             users = [User(id=user[0],
                           full_name=user[1],
                           email=user[2],
                           user_type=user[3],
-                          created_at=user[4]) for user in users]
-            return jsonify({"success": True, "users": [user.to_dict() for user in users]}), 200
+                          created_at=user[4],
+                          updated_at=user[5]).to_dict() for user in users]
+            return jsonify({"success": True, "users": users}), 200
         except Exception as e:
-            raise Exception(
-                f"Error al conectar con la base de datos: {str(e)}")
+            return jsonify({"success": False, "Error": str(e)})
         finally:
             cursor.close()
-            print("Connection closed")
 
     @classmethod
     def get_user_by_id(cls, id):
+        """
+        This method is used to get a specific user by their ID.
+
+        Parameters:
+        id (int): the ID of the user to get.
+
+        Returns:
+        A JSON object holding the user's data
+        If the user is not found, it returns a JSON object with an error message.
+        """
         try:
             cursor = db.connection.cursor()
-            sql = "SELECT id, full_name, email, user_type, created_at FROM users WHERE id = %s"
-            cursor.execute(sql, (id,))
-            user = cursor.fetchone()
+            cursor.callproc("User_by_id", (id,))
+            for result in cursor.stored_results():
+                user = result.fetchone()
             if not user:
-                return jsonify({"success": False, "message": "Usuario no encontrado"}), 404
+                return jsonify({"success": False, "message": "User not found"}), 404
             user = User(id=user[0],
                         full_name=user[1],
                         email=user[2],
                         user_type=user[3],
-                        created_at=user[4])
-            return jsonify({"success": True, "user": user.to_dict()}), 200
+                        created_at=user[4],
+                        updated_at=user[5]).to_dict()
+            return jsonify({"success": True, "user": user}), 200
         except Exception as e:
-            raise Exception(
-                f"Error al conectar con la base de datos: {str(e)}")
+            return jsonify({"success": False, "Error": str(e)})
         finally:
             cursor.close()
-            print("Connection closed")
 
     @classmethod
     def update_user(cls, id, data_user):
+        """
+        This method is used to update data for a specific user.
+
+        Parameters:
+        id (int): The ID of the user to be updated.
+        data_user (dict): A dictionary containing the new user data.
+
+        Returns:
+        A JSON object containing a success message
+        If the user is not found, returns a JSON object
+        """
         try:
             cursor = db.connection.cursor()
-            sql = "SELECT id FROM users WHERE id = %s"
-            cursor.execute(sql, (id,))
-            user = cursor.fetchone()
-            if not user:
-                return jsonify({"success": False, "message": "Usuario no encontrado"}), 404
-
-            sql = "UPDATE users SET "
-            set_values = []
-            values = []
-            if 'full_name' in data_user:
-                set_values.append("full_name = %s")
-                values.append(data_user['full_name'])
-            if 'email' in data_user:
-                set_values.append("email = %s")
-                values.append(data_user['email'])
-            if 'password' in data_user:
-                set_values.append("password = %s")
-                values.append(data_user['password'])
-
-            values.append(id)
-            sql = f"UPDATE users SET {', '.join(set_values)} WHERE id = %s"
-            cursor.execute(sql, tuple(values))
-            db.connection.commit()
-            return jsonify({"success": True, "message": f'Usuario actualizado con éxito'}), 200
+            cursor.callproc("Update_user", (id, data_user['full_name'],
+                            data_user['email'], data_user['password']))
+            for result in cursor.stored_results():
+                message = result.fetchone()[0]
+            if message == 'not_exist':
+                return jsonify({"success": False, "message": "User not found"}), 404
+            elif message == 'success':
+                db.connection.commit()
+                return jsonify({"success": True, "message": f"User '{data_user['full_name']}' successfully updated"}), 200
         except Exception as e:
-            raise Exception(
-                f"Error al conectar con la base de datos: {str(e)}")
+            return jsonify({"success": False, "Error": str(e)})
         finally:
             cursor.close()
-            print("Connection closed")
 
     @classmethod
     def delete_user(cls, id):
+        """
+        This method is used to delete a specific user.
+
+        Parameters:
+        id (int): the ID of the user to be deleted.
+
+        Returns:
+        A JSON object containing a success message
+        If the user is not found, returns a JSON object
+        """
         try:
             cursor = db.connection.cursor()
-            sql = "SELECT id FROM users WHERE id = %s"
-            cursor.execute(sql, (id,))
-            user = cursor.fetchone()
-            if not user:
-                return jsonify({"success": False, "message": "Usuario no encontrado"}), 404
-
-            cursor.execute("DELETE FROM users WHERE id = %s", (id,))
-            db.connection.commit()
-            return jsonify({"success": True, "message": f'Usuario eliminado con éxito'}), 200
+            cursor.callproc("Delete_user", (id,))
+            for result in cursor.stored_results():
+                message = result.fetchone()[0]
+            if message == 'not_exist':
+                return jsonify({"success": False, "message": "User not found"}), 404
+            elif message == 'success':
+                db.connection.commit()
+                return jsonify({"success": True, "message": "User successfully deleted"}), 200
         except Exception as e:
-            raise Exception(
-                f"Error al conectar con la base de datos: {str(e)}")
+            return jsonify({"success": False, "Error": str(e)})
         finally:
             cursor.close()
-            print("Connection closed")
 
     @staticmethod
-    def validate_data_update(data):
+    def validate(data):
+        """
+        Validates the data for creating a new user.
+
+        Args:
+            data (dict): The data to be validated.
+
+        Returns:
+            None or Response: If the data is valid, returns None. Otherwise, returns a JSON response with an error message.
+        """
         if not data:
             return jsonify({"success": False, "message": "No se proporcionaron datos"}), 400
 
-        required_fields = ['full_name', 'email', 'password']
-        if not any(field in data for field in required_fields):
-            return jsonify({"success": False, "message": "Campos admitidos: full_name, email, password"}), 400
+        if 'full_name' not in data:
+            return jsonify({"success": False, "message": "Campo 'full_name' requerido"}), 400
+        elif not isinstance(data['full_name'], str) or len(data['full_name']) == 0:
+            return jsonify({"success": False, "message": "Campo 'full_name' debe ser una cadena no vacía"}), 400
+        elif len(data['full_name'].split(' ')) < 2:
+            return jsonify({"success": False, "message": "El campo full_name debe contener un nombre y apellido"}), 400
 
-        if "email" in data:
-            invalid_email = User.validate_email(data['email'])
-            if invalid_email:
-                return invalid_email
+        if 'email' not in data:
+            return jsonify({"success": False, "message": "Campo 'email' requerido"}), 400
+        elif not isinstance(data['email'], str) or len(data['email']) == 0:
+            return jsonify({"success": False, "message": "Campo 'email' debe ser una cadena no vacía"}), 400
+        elif not re.match(r"[^@]+@[^@]+\.[^@]+", data['email']):
+            return jsonify({"success": False, "message": "Formato de correo electrónico inválido"}), 400
 
-        if "password" in data:
-            invalid_password = User.validate_password(data['password'])
-            if invalid_password:
-                return invalid_password
-
-        if 'full_name' in data:
-            invalid_full_name = User.validate_full_name(data['full_name'])
-            if invalid_full_name:
-                return invalid_full_name
-
-        return None
-
-    @staticmethod
-    def validate_data_register(data):
-        if not data:
-            return jsonify({"success": False, "message": "No se proporcionaron datos"}), 400
-
-        missing_fields = [field for field in [
-            'full_name', 'email', 'password'] if field not in data]
-        if missing_fields:
-            return jsonify({"success": False, "message": f"Faltan los siguientes campos: {', '.join(missing_fields)}"}), 400
-
-        if "email" in data:
-            invalid_email = User.validate_email(data['email'])
-            if invalid_email:
-                return invalid_email
-
-        if "password" in data:
-            invalid_password = User.validate_password(data['password'])
-            if invalid_password:
-                return invalid_password
-
-        if 'full_name' in data:
-            invalid_full_name = User.validate_full_name(data['full_name'])
-            if invalid_full_name:
-                return invalid_full_name
+        if 'password' not in data:
+            return jsonify({"success": False, "message": "Campo 'password' requerido"}), 400
+        elif not isinstance(data['password'], str) or len(data['password']) == 0:
+            return jsonify({"success": False, "message": "Campo 'password' debe ser una cadena no vacía"}), 400
+        elif len(data['password']) < 8:
+            return jsonify({"success": False, "message": "La contraseña debe tener por lo menos 8 caracteres"}), 400
 
         return None
 
@@ -229,22 +245,19 @@ class ModelUser():
     def validate_data_login(data):
         if not data:
             return jsonify({"success": False, "message": "No se proporcionaron datos"}), 400
-        email = data.get('email')
-        password = data.get('password')
 
-        missing_fields = [field for field in [
-            'email', 'password'] if field not in data]
-        if missing_fields:
-            return jsonify({"success": False, "message": f"Faltan los siguientes campos: {', '.join(missing_fields)}"}), 400
+        if 'email' not in data:
+            return jsonify({"success": False, "message": "Campo 'email' requerido"}), 400
+        elif not isinstance(data['email'], str) or len(data['email']) == 0:
+            return jsonify({"success": False, "message": "Campo 'email' debe ser una cadena no vacía"}), 400
+        elif not re.match(r"[^@]+@[^@]+\.[^@]+", data['email']):
+            return jsonify({"success": False, "message": "Formato de correo electrónico inválido"}), 400
 
-        if "email" in data:
-            invalid_email = User.validate_email(data['email'])
-            if invalid_email:
-                return invalid_email
-
-        if "password" in data:
-            invalid_password = User.validate_password(data['password'])
-            if invalid_password:
-                return invalid_password
+        if 'password' not in data:
+            return jsonify({"success": False, "message": "Campo 'password' requerido"}), 400
+        elif not isinstance(data['password'], str) or len(data['password']) == 0:
+            return jsonify({"success": False, "message": "Campo 'password' debe ser una cadena no vacía"}), 400
+        elif len(data['password']) < 8:
+            return jsonify({"success": False, "message": "La contraseña debe tener por lo menos 8 caracteres"}), 400
 
         return None

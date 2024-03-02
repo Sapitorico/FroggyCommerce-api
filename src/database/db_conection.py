@@ -1,3 +1,4 @@
+from flask import jsonify
 from mysql.connector import connect
 from src.utils.decorators.Singelton import singelton
 import os
@@ -15,6 +16,6 @@ class DBConnection():
                 password=os.getenv('MYSQL_PASSWORD'),
                 database=os.getenv('MYSQL_DB')
             )
-        except Exception as ex:
-            print("Error:", ex)
+        except Exception as e:
+            return jsonify({"success": False, "Error": str(e)})
             self.connection = None
