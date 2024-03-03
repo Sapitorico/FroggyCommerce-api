@@ -15,6 +15,12 @@ class ModelProduct():
 
     @classmethod
     def create(cls, product):
+        """
+        Create a new product in the database.
+
+        Args:
+            product (Product): Object representing the product to create.
+        """
         try:
             cursor = db.connection.cursor()
             product_id = str(uuid.uuid4())
@@ -40,6 +46,9 @@ class ModelProduct():
 
     @classmethod
     def get_products(cls):
+        """
+        Get all products stored in the database.
+        """
         try:
             cursor = db.connection.cursor()
             cursor.callproc("Products_list")
@@ -61,6 +70,12 @@ class ModelProduct():
 
     @classmethod
     def get_product_by_id(cls, id):
+        """
+        Get a product from the database by its ID.
+
+        Args:
+            id (str): ID of the product.
+        """
         try:
             cursor = db.connection.cursor()
             cursor.callproc("Product_by_id", (id,))
@@ -84,6 +99,13 @@ class ModelProduct():
 
     @classmethod
     def update_product(cls, id, product):
+        """
+        Update an existing product in the database.
+
+        Args:
+            id (str): ID of the product to update.
+            product (dict): Updated product data.
+        """
         try:
             cursor = db.connection.cursor()
             category_id = str(uuid.uuid4())
@@ -108,14 +130,14 @@ class ModelProduct():
 
     @classmethod
     def delete_product(cls, id):
+        """
+        Delete an existing product from the database.
+
+        Args:
+            id (str): ID of the product to delete.
+        """
         try:
             cursor = db.connection.cursor()
-            # sql = "SELECT id FROM products WHERE id = %s"
-            # cursor.execute(sql, (id,))
-            # existing_product = cursor.fetchone()
-            # if not existing_product:
-            #     return jsonify({"success": False, "message": "Producto no encontrado"}), 404
-            # sql = "DELETE FROM products WHERE id = %s"
             cursor.callproc("Delete_product", (id,))
             for result in cursor.stored_results():
                 message = result.fetchone()[0]
@@ -131,6 +153,12 @@ class ModelProduct():
 
     @staticmethod
     def validate(product):
+        """
+        Delete an existing product from the database.
+
+        Args:
+            id (str): ID of the product to delete.
+        """
         if not product:
             return jsonify({"success": False, "message": "No se proporcionaron datos"}), 400
 

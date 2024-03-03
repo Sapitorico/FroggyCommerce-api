@@ -14,6 +14,9 @@ product = Blueprint('product', __name__)
 
 @product.route('/', methods=['GET'])
 def get_products():
+    """
+    Obtains all products
+    """
     if request.method == 'GET':
         response = ModelProduct.get_products()
         return response
@@ -21,6 +24,12 @@ def get_products():
 
 @product.route('/<id>', methods=['GET'])
 def get_product(id):
+    """
+    Gets a product by its id
+
+    Args:
+        id (str): ID of the product
+    """
     if request.method == 'GET':
         response = ModelProduct.get_product_by_id(id)
         return response
@@ -29,6 +38,9 @@ def get_product(id):
 @product.route('/create', methods=['POST'])
 @Security.verify_admin
 def create_product():
+    """
+    Create a new product
+    """
     if request.method == 'POST':
         data = request.json
         valid_data = ModelProduct.validate(data)
@@ -46,6 +58,12 @@ def create_product():
 @product.route('/update/<id>', methods=['PUT'])
 @Security.verify_admin
 def update_product(id):
+    """
+    Upgrades an existing product
+
+    Args:
+        id (str): ID of the product to be updated
+    """
     if request.method == 'PUT':
         data = request.json
         valid_data = ModelProduct.validate(data)
@@ -58,6 +76,12 @@ def update_product(id):
 @product.route('/delete/<id>', methods=['DELETE'])
 @Security.verify_admin
 def delete_product(id):
+    """
+    Deletes an existing product
+
+    Args:
+        id (str): ID of the product to be deleted
+    """
     if request.method == 'DELETE':
         response = ModelProduct.delete_product(id)
         return response

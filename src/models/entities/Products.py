@@ -1,10 +1,29 @@
 
-from flask import jsonify
 
 
 class Product():
+    """
+    Class representing a product.
+
+    Attributes:
+        id (str): Unique identifier of the product.
+        name (str): Product name.
+        description (str): Product description.
+        price (float): Price of the product.
+        stock (int): Quantity available in stock of the product.
+        category (str): Product category.
+        category_id (str): Unique identifier of the product category.
+        created_at (datetime): Date and time of product creation.
+        updated_at (datetime): Date and time of the last update of the product.
+    """
 
     def __init__(self, **kwargs):
+        """
+        Initializes an object of type Product.
+
+        Args:
+            **kwargs: key-value arguments to initialize product attributes.
+        """
         self.id = kwargs.get('id')
         self.name = kwargs.get('name')
         self.description = kwargs.get('description')
@@ -15,8 +34,13 @@ class Product():
         self.created_at = kwargs.get('created_at')
         self.updated_at = kwargs.get('updated_at')
 
-
     def to_dict(self):
+        """
+        Returns a dictionary with the product attributes in a serializable format.
+
+        Returns:
+            dict: Dictionary with the product attributes.
+        """
         return {
             "id": self.id,
             "name": self.name,
