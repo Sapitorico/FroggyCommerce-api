@@ -11,6 +11,7 @@ This module handles authentication routes.
 """
 auth = Blueprint('auth', __name__)
 
+
 @auth.route('/register', methods=['POST'])
 def register():
     """
@@ -48,7 +49,7 @@ def login():
     """
     if request.method == 'POST':
         data = request.json
-        validation_error = ModelUser.validate_data_login(data)
+        validation_error = ModelUser.validate_login(data)
         if validation_error:
             return validation_error
         user = User(email=data.get('email'),

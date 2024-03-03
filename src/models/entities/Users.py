@@ -1,3 +1,4 @@
+from bcrypt import checkpw, gensalt, hashpw
 
 
 class User():
@@ -28,6 +29,14 @@ class User():
         self.user_type = kwargs.get('user_type')
         self.created_at = kwargs.get('created_at')
         self.updated_at = kwargs.get('updated_at')
+
+    @staticmethod
+    def hash_password(password):
+        return hashpw(password.encode('utf-8'), gensalt()).decode('utf-8')
+
+    @staticmethod
+    def check_password(hashed_password, password):
+        return checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
     def to_dict(self):
         """

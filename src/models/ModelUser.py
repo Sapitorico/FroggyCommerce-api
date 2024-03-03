@@ -30,7 +30,7 @@ class ModelUser():
         If the registration is successful, it will return 'success'.
 
         Parameters:
-        user (User): The User object containing the user's details.
+            user (User): The User object containing the user's details.
 
         """
         try:
@@ -56,10 +56,10 @@ class ModelUser():
         This method is used to log in a user.
 
         Parameters:
-        user (User): a user object containing the user's email and password.
+            user (User): a user object containing the user's email and password.
 
         Returns:
-        A JSON object containing a success or failure message, and an HTTP status code.
+            A JSON object containing a success or failure message, and an HTTP status code.
         """
         try:
             cursor = db.connection.cursor()
@@ -97,7 +97,7 @@ class ModelUser():
         This method is used to get a list of all users.
 
         Returns:
-        A JSON object containing a list of users and an HTTP status code 200 in case of success.
+            A JSON object containing a list of users and an HTTP status code 200 in case of success.
         """
         try:
             cursor = db.connection.cursor()
@@ -123,11 +123,11 @@ class ModelUser():
         This method is used to get a specific user by their ID.
 
         Parameters:
-        id (int): the ID of the user to get.
+            id (str): the ID of the user to get.
 
         Returns:
-        A JSON object holding the user's data
-        If the user is not found, it returns a JSON object with an error message.
+            A JSON object holding the user's data
+            If the user is not found, it returns a JSON object with an error message.
         """
         try:
             cursor = db.connection.cursor()
@@ -154,17 +154,17 @@ class ModelUser():
         This method is used to update data for a specific user.
 
         Parameters:
-        id (int): The ID of the user to be updated.
-        data_user (dict): A dictionary containing the new user data.
+            id (str): The ID of the user to be updated.
+            data_user (dict): A dictionary containing the new user data.
 
         Returns:
-        A JSON object containing a success message
-        If the user is not found, returns a JSON object
+            A JSON object containing a success message
+            If the user is not found, returns a JSON object
         """
         try:
             cursor = db.connection.cursor()
             cursor.callproc("Update_user", (id, data_user['full_name'],
-                            data_user['email'], data_user['password']))
+                            data_user['email'], User.hash_password(data_user['password'])))
             for result in cursor.stored_results():
                 message = result.fetchone()[0]
             if message == 'not_exist':
@@ -183,11 +183,11 @@ class ModelUser():
         This method is used to delete a specific user.
 
         Parameters:
-        id (int): the ID of the user to be deleted.
+        id (str): the ID of the user to be deleted.
 
         Returns:
-        A JSON object containing a success message
-        If the user is not found, returns a JSON object
+            A JSON object containing a success message
+            If the user is not found, returns a JSON object
         """
         try:
             cursor = db.connection.cursor()
@@ -242,7 +242,7 @@ class ModelUser():
         return None
 
     @staticmethod
-    def validate_data_login(data):
+    def validate_login(data):
         if not data:
             return jsonify({"success": False, "message": "No se proporcionaron datos"}), 400
 

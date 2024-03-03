@@ -1,9 +1,12 @@
-from flask import Blueprint, request, jsonify
+from flask import Blueprint, request
 
-from src.models.entities.Products import Product
-
+# Models
 from src.models.ModelProduct import ModelProduct
 
+#  Entities
+from src.models.entities.Products import Product
+
+# Security
 from src.utils.Security import Security
 
 product = Blueprint('product', __name__)
@@ -28,7 +31,7 @@ def get_product(id):
 def create_product():
     if request.method == 'POST':
         data = request.json
-        valid_data = Product.validate(data)
+        valid_data = ModelProduct.validate(data)
         if valid_data:
             return valid_data
         product = Product(name=data['name'],
@@ -45,7 +48,7 @@ def create_product():
 def update_product(id):
     if request.method == 'PUT':
         data = request.json
-        valid_data = Product.validate(data)
+        valid_data = ModelProduct.validate(data)
         if valid_data:
             return valid_data
         response = ModelProduct.update_product(id, data)
