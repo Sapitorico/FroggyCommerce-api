@@ -110,7 +110,7 @@ CREATE TABLE IF NOT EXISTS `ecommerce_db`.`shopping_cart` (
   `id` VARCHAR(36) NOT NULL,
   `customer_id` VARCHAR(36) NOT NULL,
   `product_id` VARCHAR(36) NOT NULL,
-  `quantit` INT NOT NULL,
+  `quantity` INT NOT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_shopping_cart_customer_id_idx` (`customer_id` ASC) VISIBLE,
   INDEX `fk_shopping_cart_product_id_idx` (`product_id` ASC) VISIBLE,
