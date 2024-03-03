@@ -6,8 +6,17 @@ import os
 
 @singelton
 class DBConnection():
+    """
+    Class to handle database connections.
+    """
 
     def __init__(self):
+        """
+        Initialize DBConnection class.
+
+        Attempts to establish a connection with the MySQL database using environment variables.
+        """
+
         try:
             self.connection = connect(
                 host=os.getenv('MYSQL_HOST'),
@@ -17,5 +26,5 @@ class DBConnection():
                 database=os.getenv('MYSQL_DB')
             )
         except Exception as e:
-            return jsonify({"success": False, "Error": str(e)})
             self.connection = None
+            return jsonify({"success": False, "Error": str(e)})

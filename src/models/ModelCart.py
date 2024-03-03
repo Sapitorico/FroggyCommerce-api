@@ -100,16 +100,17 @@ class ModelCart():
             data (dict): Product data to validate.
         """
         if not data:
-            return jsonify({"success": False, "message": "No se proporcionaron datos"}), 400
+            return jsonify({"success": False, "message": "No data provided"}), 400
 
         if 'product_id' not in data:
-            return jsonify({"success": False, "message": "Campo 'product_id' requerido"}), 400
+            return jsonify({"success": False, "message": "'product_id' field is required"}), 400
         elif not isinstance(data['product_id'], str) or len(data['product_id']) == 0:
-            return jsonify({"success": False, "message": "El campo 'product_id' debe ser una cadena no vacia"}), 400
+            return jsonify({"success": False, "message": "'product_id' field must be a non-empty string"}), 400
 
         if 'quantity' not in data:
-            return jsonify({"success": False, "message": "Campo 'quantity requerido"}), 400
+            return jsonify({"success": False, "message": "'quantity' field is required"}), 400
         elif not isinstance(data['quantity'], int) or isinstance(data['quantity'], bool) or data['quantity'] <= 0:
-            return jsonify({"success": False, "message": "Campo 'quantity' debe ser un número y mayor que 0"}), 400
+            return jsonify({"success": False, "message": "'quantity' field must be a number and greater than 0"}), 400
 
         return None
+

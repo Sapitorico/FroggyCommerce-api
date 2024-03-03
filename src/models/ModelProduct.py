@@ -160,31 +160,32 @@ class ModelProduct():
             id (str): ID of the product to delete.
         """
         if not product:
-            return jsonify({"success": False, "message": "No se proporcionaron datos"}), 400
+            return jsonify({"success": False, "message": "No data provided"}), 400
 
         if 'name' not in product:
-            return jsonify({"success": False, "message": "Campo 'name' requerido"}), 400
+            return jsonify({"success": False, "message": "'name' field is required"}), 400
         elif not isinstance(product['name'], str) or len(product['name']) == 0:
-            return jsonify({"success": False, "message": "El campo 'name' debe ser una cadena no vacia"}), 400
+            return jsonify({"success": False, "message": "'name' field must be a non-empty string"}), 400
 
         if 'description' not in product:
-            return jsonify({"success": False, "message": "Campo 'description' requerido"}), 400
+            return jsonify({"success": False, "message": "'description' field is required"}), 400
         elif not isinstance(product['description'], str) or len(product['description']) == 0:
-            return jsonify({"success": False, "message": "El campo 'description' debe ser una cadena de caracteres"}), 400
+            return jsonify({"success": False, "message": "'description' field must be a string of characters"}), 400
 
         if 'price' not in product:
-            return jsonify({"success": False, "message": "Campo 'price' requerido"}), 400
+            return jsonify({"success": False, "message": "'price' field is required"}), 400
         elif not isinstance(product['price'], (int, float)) or isinstance(product['price'], bool) or product['price'] <= 0:
-            return jsonify({"success": False, "message": "Campo 'price' debe ser un número y mayor que 0"}), 400
+            return jsonify({"success": False, "message": "'price' field must be a number and greater than 0"}), 400
 
         if 'stock' not in product:
-            return jsonify({"success": False, "message": "Campo stock requerido"}), 400
+            return jsonify({"success": False, "message": "'stock' field is required"}), 400
         elif not isinstance(product['stock'], int) or isinstance(product['stock'], bool) or product['stock'] <= 0:
-            return jsonify({"success": False, "message": "Campo 'stock' debe ser un número y mayor que 0"}), 400
+            return jsonify({"success": False, "message": "'stock' field must be a number and greater than 0"}), 400
 
         if 'category' not in product:
-            return jsonify({"success": False, "message": "Campo 'category' requerido"}), 400
+            return jsonify({"success": False, "message": "'category' field is required"}), 400
         elif not isinstance(product['category'], str) or len(product['category']) == 0:
-            return jsonify({"success": False, "message": "El campo 'category' debe ser una cadena no vacía"}), 400
+            return jsonify({"success": False, "message": "'category' field must be a non-empty string"}), 400
 
         return None
+

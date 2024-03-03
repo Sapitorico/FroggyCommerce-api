@@ -213,48 +213,48 @@ class ModelUser():
             None or Response: If the data is valid, returns None. Otherwise, returns a JSON response with an error message.
         """
         if not data:
-            return jsonify({"success": False, "message": "No se proporcionaron datos"}), 400
+            return jsonify({"success": False, "message": "No data provided"}), 400
 
         if 'full_name' not in data:
-            return jsonify({"success": False, "message": "Campo 'full_name' requerido"}), 400
+            return jsonify({"success": False, "message": "Field 'full_name' is required"}), 400
         elif not isinstance(data['full_name'], str) or len(data['full_name']) == 0:
-            return jsonify({"success": False, "message": "Campo 'full_name' debe ser una cadena no vacía"}), 400
+            return jsonify({"success": False, "message": "Field 'full_name' must be a non-empty string"}), 400
         elif len(data['full_name'].split(' ')) < 2:
-            return jsonify({"success": False, "message": "El campo full_name debe contener un nombre y apellido"}), 400
+            return jsonify({"success": False, "message": "Full name field must contain both first and last name"}), 400
 
         if 'email' not in data:
-            return jsonify({"success": False, "message": "Campo 'email' requerido"}), 400
+            return jsonify({"success": False, "message": "Field 'email' is required"}), 400
         elif not isinstance(data['email'], str) or len(data['email']) == 0:
-            return jsonify({"success": False, "message": "Campo 'email' debe ser una cadena no vacía"}), 400
+            return jsonify({"success": False, "message": "Field 'email' must be a non-empty string"}), 400
         elif not re.match(r"[^@]+@[^@]+\.[^@]+", data['email']):
-            return jsonify({"success": False, "message": "Formato de correo electrónico inválido"}), 400
+            return jsonify({"success": False, "message": "Invalid email format"}), 400
 
         if 'password' not in data:
-            return jsonify({"success": False, "message": "Campo 'password' requerido"}), 400
+            return jsonify({"success": False, "message": "Field 'password' is required"}), 400
         elif not isinstance(data['password'], str) or len(data['password']) == 0:
-            return jsonify({"success": False, "message": "Campo 'password' debe ser una cadena no vacía"}), 400
+            return jsonify({"success": False, "message": "Field 'password' must be a non-empty string"}), 400
         elif len(data['password']) < 8:
-            return jsonify({"success": False, "message": "La contraseña debe tener por lo menos 8 caracteres"}), 400
+            return jsonify({"success": False, "message": "Password must be at least 8 characters long"}), 400
 
         return None
 
     @staticmethod
     def validate_login(data):
         if not data:
-            return jsonify({"success": False, "message": "No se proporcionaron datos"}), 400
+            return jsonify({"success": False, "message": "No data provided"}), 400
 
         if 'email' not in data:
-            return jsonify({"success": False, "message": "Campo 'email' requerido"}), 400
+            return jsonify({"success": False, "message": "'email' field is required"}), 400
         elif not isinstance(data['email'], str) or len(data['email']) == 0:
-            return jsonify({"success": False, "message": "Campo 'email' debe ser una cadena no vacía"}), 400
+            return jsonify({"success": False, "message": "'email' field must be a non-empty string"}), 400
         elif not re.match(r"[^@]+@[^@]+\.[^@]+", data['email']):
-            return jsonify({"success": False, "message": "Formato de correo electrónico inválido"}), 400
+            return jsonify({"success": False, "message": "Invalid email format"}), 400
 
         if 'password' not in data:
-            return jsonify({"success": False, "message": "Campo 'password' requerido"}), 400
+            return jsonify({"success": False, "message": "'password' field is required"}), 400
         elif not isinstance(data['password'], str) or len(data['password']) == 0:
-            return jsonify({"success": False, "message": "Campo 'password' debe ser una cadena no vacía"}), 400
+            return jsonify({"success": False, "message": "'password' field must be a non-empty string"}), 400
         elif len(data['password']) < 8:
-            return jsonify({"success": False, "message": "La contraseña debe tener por lo menos 8 caracteres"}), 400
+            return jsonify({"success": False, "message": "Password must be at least 8 characters long"}), 400
 
         return None
