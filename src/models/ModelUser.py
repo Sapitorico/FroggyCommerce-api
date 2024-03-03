@@ -6,9 +6,6 @@ from datetime import datetime
 # Security:
 from src.utils.Security import Security
 
-# Models
-from src.models.ModelShoppingCart import ModelShoppingCart
-
 # Entities:
 from src.models.entities.Users import User
 
