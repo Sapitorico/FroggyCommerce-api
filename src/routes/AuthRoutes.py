@@ -6,6 +6,9 @@ from src.models.ModelUser import ModelUser
 # Entities
 from src.models.entities.Users import User
 
+# Rate limit
+# from src.utils.decorators.Ratelimiter import rate_limit
+
 """
 This module handles authentication routes.
 """

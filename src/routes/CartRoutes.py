@@ -6,6 +6,9 @@ from src.models.ModelCart import ModelCart
 # Security
 from src.utils.Security import Security
 
+# Rate limit
+# from src.utils.decorators.Ratelimiter import rate_limit
+
 cart = Blueprint('cart', __name__)
 
 
@@ -41,7 +44,7 @@ def add_to_cart(user_id):
         return response
 
 
-@cart.route('/remove/<id>', methods=['DELETE'])
+@cart.route('/remove/<string:id>', methods=['DELETE'])
 @Security.verify_session
 def delete(user_id, id):
     """

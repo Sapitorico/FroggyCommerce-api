@@ -9,6 +9,9 @@ from src.models.entities.Products import Product
 # Security
 from src.utils.Security import Security
 
+# Rate limit
+# from src.utils.decorators.Ratelimiter import rate_limit
+
 product = Blueprint('product', __name__)
 
 
@@ -22,7 +25,7 @@ def get_products():
         return response
 
 
-@product.route('/<id>', methods=['GET'])
+@product.route('/<string:id>', methods=['GET'])
 def get_product(id):
     """
     Gets a product by its id
@@ -55,7 +58,7 @@ def create_product():
     return response
 
 
-@product.route('/update/<id>', methods=['PUT'])
+@product.route('/update/<string:id>', methods=['PUT'])
 @Security.verify_admin
 def update_product(id):
     """
@@ -73,7 +76,7 @@ def update_product(id):
         return response
 
 
-@product.route('/delete/<id>', methods=['DELETE'])
+@product.route('/delete/<string:id>', methods=['DELETE'])
 @Security.verify_admin
 def delete_product(id):
     """
