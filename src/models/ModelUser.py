@@ -49,9 +49,10 @@ class ModelUser():
             elif message == 'success':
                 db.commit()
                 return jsonify({"success": True, "message": f"User '{user.full_name}' successfully registered"}), 201
-            cursor.close()
         except Exception as e:
-            return jsonify({"success": False, "Error": str(e)})
+            return jsonify({"success": False, "Error": str(e)}), 500
+        finally:
+            cursor.close()
 
     @classmethod
     def login(cls, db, user):
@@ -87,7 +88,7 @@ class ModelUser():
             }
             return jsonify(response_data), 200
         except Exception as e:
-            return jsonify({"success": False, "Error": str(e)})
+            return jsonify({"success": False, "Error": str(e)}), 500
         finally:
             cursor.close()
 
@@ -110,7 +111,7 @@ class ModelUser():
                           updated_at=user[5]).to_dict() for user in users]
             return jsonify({"success": True, "message": "Users fetched successfully", "users": users}), 200
         except Exception as e:
-            return jsonify({"success": False, "Error": str(e)})
+            return jsonify({"success": False, "Error": str(e)}), 500
         finally:
             cursor.close()
 
@@ -137,7 +138,7 @@ class ModelUser():
                         updated_at=user[5]).to_dict()
             return jsonify({"success": True, "message": "User fetched successfully", "user": user}), 200
         except Exception as e:
-            return jsonify({"success": False, "Error": str(e)})
+            return jsonify({"success": False, "Error": str(e)}), 500
         finally:
             cursor.close()
 
@@ -160,9 +161,9 @@ class ModelUser():
                 return jsonify({"success": False, "message": "User not found"}), 404
             elif message == 'success':
                 db.commit()
-                return jsonify({"success": True, "message": f"User '{data_user['full_name']}' successfully updated"}), 200
+                return jsonify({"success": True, "message": "User successfully updated"}), 200
         except Exception as e:
-            return jsonify({"success": False, "Error": str(e)})
+            return jsonify({"success": False, "Error": str(e)}), 500
         finally:
             cursor.close()
 
@@ -186,7 +187,7 @@ class ModelUser():
                 db.commit()
                 return jsonify({"success": True, "message": "User successfully deleted"}), 200
         except Exception as e:
-            return jsonify({"success": False, "Error": str(e)})
+            return jsonify({"success": False, "Error": str(e)}), 500
         finally:
             cursor.close()
 

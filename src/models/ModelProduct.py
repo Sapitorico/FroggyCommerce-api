@@ -35,7 +35,7 @@ class ModelProduct():
                 db.commit()
                 return jsonify({"success": True, "message": 'Successfully created product'}), 201
         except Exception as e:
-            return jsonify({"success": False, "error": str(e)})
+            return jsonify({"success": False, "error": str(e)}), 500
         finally:
             cursor.close()
 
@@ -57,9 +57,9 @@ class ModelProduct():
                                 category=product[5],
                                 created_at=product[6],
                                 updated_at=product[7]).to_dict() for product in products]
-            return jsonify({"success": True, "Products": [products]}), 200
+            return jsonify({"success": True, "message": "Products retrieved successfully", "products": products}), 200
         except Exception as e:
-            return jsonify({"success": False, "error": str(e)})
+            return jsonify({"success": False, "error": str(e)}), 500
         finally:
             cursor.close()
 
@@ -86,9 +86,9 @@ class ModelProduct():
                               category=product[5],
                               created_at=product[6],
                               updated_at=product[7]).to_dict()
-            return jsonify({"success": True, "Product": product}), 200
+            return jsonify({"success": True, "message": "Product retrieved successfully",  "product": product}), 200
         except Exception as e:
-            return jsonify({"success": False, "error": str(e)})
+            return jsonify({"success": False, "error": str(e)}), 500
         finally:
             cursor.close()
 
@@ -119,7 +119,7 @@ class ModelProduct():
                 db.commit()
                 return jsonify({"success": True, "message": "Product successfully upgraded"}), 200
         except Exception as e:
-            return jsonify({"success": False, "error": str(e)})
+            return jsonify({"success": False, "error": str(e)}), 500
         finally:
             cursor.close()
 
@@ -140,9 +140,9 @@ class ModelProduct():
                 return jsonify({"success": False, "message": "Product not found"}), 404
             elif message == 'success':
                 db.commit()
-                return jsonify({"success": True, "message": "Product successfully removed"}), 200
+                return jsonify({"success": True, "message": "Product successfully deleted"}), 200
         except Exception as e:
-            raise Exception(f"Error: {str(e)}")
+            return jsonify({"success": False, "error": str(e)}), 500
         finally:
             cursor.close()
 
@@ -183,4 +183,3 @@ class ModelProduct():
             return jsonify({"success": False, "message": "'category' field must be a non-empty string"}), 400
 
         return None
-

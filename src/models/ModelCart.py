@@ -23,12 +23,12 @@ class ModelCart():
                 cart.append({
                     "id": item[0],
                     "name": item[1],
-                    "price": item[2],
+                    "price": float(item[2]),
                     "quantity": item[3],
                     "total": item[4]
                 })
 
-            return jsonify({"success": True, "cart": cart}), 200
+            return jsonify({"success": True, "message": "Cart retrieved successfully", "cart": cart}), 200
         except Exception as e:
             return jsonify({"success": True, "error": str(e)}), 500
         finally:
