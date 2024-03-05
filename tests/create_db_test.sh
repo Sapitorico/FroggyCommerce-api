@@ -2,7 +2,7 @@
 
 # Cargar variables de entorno desde el archivo .env
 if [[ -f .env ]]; then
-    export $(grep -v '^#' .env | xargs)
+    export $(grep -v '^#' .env.testing | xargs)
 else
     echo "Error: El archivo .env no encontrado."
     exit 1

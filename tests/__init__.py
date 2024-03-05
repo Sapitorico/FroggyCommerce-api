@@ -4,6 +4,9 @@ import subprocess
 from flask import Flask
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv('.env.testing')
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 
@@ -22,17 +25,18 @@ class BaseTestContext(unittest.TestCase):
             exit(1)
 
         self.connection = connect(
-            host=os.getenv('MYSQL_HOST'),
-            port=int(os.getenv('MYSQL_PORT')),
-            user=os.getenv('MYSQL_USER'),
-            password=os.getenv('MYSQL_PASSWORD'),
-            database="ecommerce_db_test"
+            host=os.getenv('MYSQL_HOST_TEST'),
+            port=int(os.getenv('MYSQL_PORT_TEST')),
+            user=os.getenv('MYSQL_USER_TEST'),
+            password=os.getenv('MYSQL_PASSWORD_TEST'),
+            database=os.getenv('MYSQL_DB_TEST')
         )
 
     def tearDown(self):
         try:
             self.cursor = self.connection.cursor()
-            self.cursor.execute("DROP DATABASE IF EXISTS ecommerce_db_test")
+            self.cursor.execute(
+                f"DROP DATABASE IF EXISTS {os.getenv('MYSQL_DB_TEST')}")
             self.connection.commit()
             self.cursor.close()
         except ProgrammingError as err:
