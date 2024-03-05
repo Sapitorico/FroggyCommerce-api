@@ -9,8 +9,10 @@ from src.models.entities.Products import Product
 # Security
 from src.utils.Security import Security
 
-# Rate limit
-# from src.utils.decorators.Ratelimiter import rate_limit
+# Database connection
+from src.database.db_conection import DBConnection
+
+db = DBConnection()
 
 product = Blueprint('product', __name__)
 
@@ -21,7 +23,7 @@ def get_products():
     Obtains all products
     """
     if request.method == 'GET':
-        response = ModelProduct.get_products()
+        response = ModelProduct.get_products(db)
         return response
 
 
@@ -34,7 +36,7 @@ def get_product(id):
         id (str): ID of the product
     """
     if request.method == 'GET':
-        response = ModelProduct.get_product_by_id(id)
+        response = ModelProduct.get_product_by_id(db, id)
         return response
 
 
@@ -54,7 +56,7 @@ def create_product():
                           price=data['price'],
                           stock=data['stock'],
                           category=data['category'])
-        response = ModelProduct.create(product)
+        response = ModelProduct.create(db, product)
     return response
 
 
@@ -72,7 +74,7 @@ def update_product(id):
         valid_data = ModelProduct.validate(data)
         if valid_data:
             return valid_data
-        response = ModelProduct.update_product(id, data)
+        response = ModelProduct.update_product(db, id, data)
         return response
 
 
@@ -86,5 +88,5 @@ def delete_product(id):
         id (str): ID of the product to be deleted
     """
     if request.method == 'DELETE':
-        response = ModelProduct.delete_product(id)
+        response = ModelProduct.delete_product(db, id)
         return response

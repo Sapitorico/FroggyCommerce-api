@@ -9,17 +9,24 @@ from src.utils.Security import Security
 # Entities:
 from src.models.entities.Users import User
 
-# Database
-from src.database.db_conection import DBConnection
-
-# Database connection:
-db = DBConnection()
-
 
 class ModelUser():
+    """
+    This class represents a model for managing user data in the database.
+
+    Methods:
+        - register(user): Registers a new user in the database.
+        - login(user): Logs in a user.
+        - get_users(): Retrieves a list of all users.
+        - get_user_by_id(id): Retrieves a specific user by their ID.
+        - update_user(id, data_user): Updates data for a specific user.
+        - delete_user(id): Deletes a specific user.
+        - validate(data): Validates the data for creating a new user.
+        - validate_login(data): Validates the data for user login.
+    """
 
     @classmethod
-    def register(cls, user):
+    def register(cls, db, user):
         """
         This method registers a new user in the database.
 
@@ -31,7 +38,7 @@ class ModelUser():
 
         """
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             user_id = str(uuid.uuid4())
             cursor.callproc(
                 "Register", (user_id, user.full_name, user.email, user.password))
@@ -40,26 +47,22 @@ class ModelUser():
             if message == 'already_exists':
                 return jsonify({"success": False, "message": "This 'user' is already registered"}), 400
             elif message == 'success':
-                db.connection.commit()
+                db.commit()
                 return jsonify({"success": True, "message": f"User '{user.full_name}' successfully registered"}), 201
+            cursor.close()
         except Exception as e:
             return jsonify({"success": False, "Error": str(e)})
-        finally:
-            cursor.close()
 
     @classmethod
-    def login(cls, user):
+    def login(cls, db, user):
         """
         This method is used to log in a user.
 
         Parameters:
             user (User): a user object containing the user's email and password.
-
-        Returns:
-            A JSON object containing a success or failure message, and an HTTP status code.
         """
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             cursor.callproc("Login", (user.email,))
             for result in cursor.stored_results():
                 existing_user = result.fetchone()
@@ -89,15 +92,12 @@ class ModelUser():
             cursor.close()
 
     @classmethod
-    def get_users(cls):
+    def get_users(cls, db):
         """"
         This method is used to get a list of all users.
-
-        Returns:
-            A JSON object containing a list of users and an HTTP status code 200 in case of success.
         """
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             cursor.callproc(
                 "List_customers")
             for result in cursor.stored_results():
@@ -108,26 +108,22 @@ class ModelUser():
                           user_type=user[3],
                           created_at=user[4],
                           updated_at=user[5]).to_dict() for user in users]
-            return jsonify({"success": True, "users": users}), 200
+            return jsonify({"success": True, "message": "Users fetched successfully", "users": users}), 200
         except Exception as e:
             return jsonify({"success": False, "Error": str(e)})
         finally:
             cursor.close()
 
     @classmethod
-    def get_user_by_id(cls, id):
+    def get_user_by_id(cls, db, id):
         """
         This method is used to get a specific user by their ID.
 
         Parameters:
             id (str): the ID of the user to get.
-
-        Returns:
-            A JSON object holding the user's data
-            If the user is not found, it returns a JSON object with an error message.
         """
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             cursor.callproc("User_by_id", (id,))
             for result in cursor.stored_results():
                 user = result.fetchone()
@@ -139,27 +135,23 @@ class ModelUser():
                         user_type=user[3],
                         created_at=user[4],
                         updated_at=user[5]).to_dict()
-            return jsonify({"success": True, "user": user}), 200
+            return jsonify({"success": True, "message": "User fetched successfully", "user": user}), 200
         except Exception as e:
             return jsonify({"success": False, "Error": str(e)})
         finally:
             cursor.close()
 
     @classmethod
-    def update_user(cls, id, data_user):
+    def update_user(cls, db, id, data_user):
         """
         This method is used to update data for a specific user.
 
         Parameters:
             id (str): The ID of the user to be updated.
             data_user (dict): A dictionary containing the new user data.
-
-        Returns:
-            A JSON object containing a success message
-            If the user is not found, returns a JSON object
         """
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             cursor.callproc("Update_user", (id, data_user['full_name'],
                             data_user['email'], User.hash_password(data_user['password'])))
             for result in cursor.stored_results():
@@ -167,7 +159,7 @@ class ModelUser():
             if message == 'not_exist':
                 return jsonify({"success": False, "message": "User not found"}), 404
             elif message == 'success':
-                db.connection.commit()
+                db.commit()
                 return jsonify({"success": True, "message": f"User '{data_user['full_name']}' successfully updated"}), 200
         except Exception as e:
             return jsonify({"success": False, "Error": str(e)})
@@ -175,26 +167,23 @@ class ModelUser():
             cursor.close()
 
     @classmethod
-    def delete_user(cls, id):
+    def delete_user(cls, db, id):
         """
         This method is used to delete a specific user.
 
         Parameters:
         id (str): the ID of the user to be deleted.
 
-        Returns:
-            A JSON object containing a success message
-            If the user is not found, returns a JSON object
         """
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             cursor.callproc("Delete_user", (id,))
             for result in cursor.stored_results():
                 message = result.fetchone()[0]
             if message == 'not_exist':
                 return jsonify({"success": False, "message": "User not found"}), 404
             elif message == 'success':
-                db.connection.commit()
+                db.commit()
                 return jsonify({"success": True, "message": "User successfully deleted"}), 200
         except Exception as e:
             return jsonify({"success": False, "Error": str(e)})
@@ -208,9 +197,6 @@ class ModelUser():
 
         Args:
             data (dict): The data to be validated.
-
-        Returns:
-            None or Response: If the data is valid, returns None. Otherwise, returns a JSON response with an error message.
         """
         if not data:
             return jsonify({"success": False, "message": "No data provided"}), 400

@@ -6,8 +6,10 @@ from src.models.ModelCart import ModelCart
 # Security
 from src.utils.Security import Security
 
-# Rate limit
-# from src.utils.decorators.Ratelimiter import rate_limit
+# Database connection
+from src.database.db_conection import DBConnection
+
+db = DBConnection()
 
 cart = Blueprint('cart', __name__)
 
@@ -22,7 +24,7 @@ def get_cart(user_id):
         user_id (str): user ID
     """
     if request.method == 'GET':
-        response = ModelCart.get_cart(user_id)
+        response = ModelCart.get_cart(db, user_id)
         return response
 
 
@@ -40,7 +42,7 @@ def add_to_cart(user_id):
         valid_data = ModelCart.validate(data)
         if valid_data:
             return valid_data
-        response = ModelCart.add_to_cart(user_id, data)
+        response = ModelCart.add_to_cart(db, user_id, data)
         return response
 
 
@@ -55,5 +57,5 @@ def delete(user_id, id):
         id (str): ID of the product to be removed from the cart
     """
     if request.method == 'DELETE':
-        response = ModelCart.remove_to_cart(user_id, id)
+        response = ModelCart.remove_to_cart(db, user_id, id)
         return response

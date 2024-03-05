@@ -6,9 +6,11 @@ from src.models.ModelUser import ModelUser
 # Security
 from src.utils.Security import Security
 
-# Rate limit
-# from src.utils.decorators.Ratelimiter import rate_limit
+# Database
+from src.database.db_conection import DBConnection
 
+# Database connection:
+db = DBConnection()
 
 user = Blueprint('user', __name__)
 
@@ -23,7 +25,7 @@ def get_users():
         response: HTTP request response with the list of users.
     """
     if request.method == 'GET':
-        response = ModelUser.get_users()
+        response = ModelUser.get_users(db.connection)
         return response
 
 
@@ -37,7 +39,7 @@ def get_profile_user(user_id):
         user_id (str): ID of the user whose profile is to be obtained.
     """
     if request.method == 'GET':
-        response = ModelUser.get_user_by_id(user_id)
+        response = ModelUser.get_user_by_id(db.connection, user_id)
         return response
 
 
@@ -55,7 +57,7 @@ def update_user(user_id):
         valid_data = ModelUser.validate(data)
         if valid_data:
             return valid_data
-        response = ModelUser.update_user(user_id, data)
+        response = ModelUser.update_user(db.connection, user_id, data)
         return response
 
 
@@ -69,5 +71,5 @@ def delete_user(user_id):
         user_id (str): ID of the user to be deleted.
     """
     if request.method == 'DELETE':
-        response = ModelUser.delete_user(user_id)
+        response = ModelUser.delete_user(db.connection, user_id)
         return response

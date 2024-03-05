@@ -1,17 +1,11 @@
-
 from uuid import uuid4
 from flask import jsonify
-
-# Database connection
-from src.database.db_conection import DBConnection
-
-db = DBConnection()
 
 
 class ModelCart():
 
     @classmethod
-    def get_cart(cls, user_id):
+    def get_cart(cls, db, user_id):
         """
         Get the user's shopping cart.
 
@@ -19,7 +13,7 @@ class ModelCart():
             user_id (str): ID of the user whose cart is to be fetched.
         """
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             cursor.callproc("Get_cart", (user_id,))
             for results in cursor.stored_results():
                 result = results.fetchall()
@@ -41,7 +35,7 @@ class ModelCart():
             cursor.close()
 
     @classmethod
-    def add_to_cart(cls, user_id, data):
+    def add_to_cart(cls, db, user_id, data):
         """
         Add a product to the user's shopping cart.
 
@@ -51,7 +45,7 @@ class ModelCart():
 
         """
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             cart_id = str(uuid4())
             cursor.callproc(
                 "Add_to_cart", (data['product_id'], user_id, data['quantity'], cart_id))
@@ -60,7 +54,7 @@ class ModelCart():
             if message == 'not_exist':
                 return jsonify({"success": False, "message": "Product not found"}), 404
             elif message == 'success':
-                db.connection.commit()
+                db.commit()
                 return jsonify({"success": True, "message": "Product successfully added to cart"}), 201
         except Exception as e:
             return jsonify({"success": True, "error": str(e)})
@@ -68,7 +62,7 @@ class ModelCart():
             cursor.close()
 
     @classmethod
-    def remove_to_cart(cls, user_id, product_id):
+    def remove_to_cart(cls, db, user_id, product_id):
         """
         Remove a product from the user's shopping cart.
 
@@ -77,14 +71,14 @@ class ModelCart():
             product_id (str): ID of the product to be removed from the cart.
         """
         try:
-            cursor = db.connection.cursor()
+            cursor = db.cursor()
             cursor.callproc("Remove_to_cart", (user_id, product_id))
             for result in cursor.stored_results():
                 message = result.fetchone()[0]
             if message == 'not_exist':
                 return jsonify({"success": False, "message": "Product is not in your cart"}), 404
             elif message == 'success':
-                db.connection.commit()
+                db.commit()
                 return jsonify({"success": True, "message": "Product successfully removed from cart"}), 200
         except Exception as e:
             return jsonify({"success": True, "error": str(e)})
@@ -113,4 +107,3 @@ class ModelCart():
             return jsonify({"success": False, "message": "'quantity' field must be a number and greater than 0"}), 400
 
         return None
-

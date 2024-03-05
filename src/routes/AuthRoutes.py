@@ -6,13 +6,17 @@ from src.models.ModelUser import ModelUser
 # Entities
 from src.models.entities.Users import User
 
-# Rate limit
-# from src.utils.decorators.Ratelimiter import rate_limit
+# Database
+from src.database.db_conection import DBConnection
 
+# Database connection:
+db = DBConnection()
+
+
+auth = Blueprint('auth', __name__)
 """
 This module handles authentication routes.
 """
-auth = Blueprint('auth', __name__)
 
 
 @auth.route('/register', methods=['POST'])
@@ -35,7 +39,7 @@ def register():
                     email=data.get('email'),
                     password=User.hash_password(data.get('password')),
                     user_type='customer')
-        response = ModelUser.register(user)
+        response = ModelUser.register(db.connection, user)
         return response
 
 
@@ -57,5 +61,5 @@ def login():
             return validation_error
         user = User(email=data.get('email'),
                     password=data.get('password'))
-        response = ModelUser.login(user)
+        response = ModelUser.login(db.connection, user)
         return response
