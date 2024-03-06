@@ -76,6 +76,24 @@ Antes de comenzar, asegúrate de tener instalados los siguientes requisitos en t
    pip install virtualenv
    ```
 
+## Configuración de Entorno (.env)
+
+Asegúrate de crear un archivo `.env` en el directorio raíz del proyecto con la siguiente configuración:
+
+```dotenv
+# MySQL configuration
+# Configuración para la conexión a la base de datos MySQL
+MYSQL_HOST=        # Dirección del host de la base de datos MySQL
+MYSQL_PORT=        # Puerto de la base de datos MySQL
+MYSQL_USER=        # Usuario de la base de datos MySQL
+MYSQL_PASSWORD=    # Contraseña del usuario de la base de datos MySQL
+MYSQL_DB=          # Nombre de la base de datos MySQL
+
+# JWT Secret
+# Clave secreta utilizada para firmar y verificar tokens JWT (JSON Web Tokens)
+JWT_SECRET=        # Clave secreta para tokens JWT
+```
+
 ## Instalación
 
 ### Utilizando Docker
