@@ -68,13 +68,26 @@ Se proporcionan endpoints para el registro y autenticación de usuarios en la pl
 
 Antes de comenzar, asegúrate de tener instalados los siguientes requisitos en tu sistema Ubuntu:
 
-- Docker: Puedes seguir la [documentación oficial de Docker](https://docs.docker.com/engine/install/ubuntu/) para instalar Docker en Ubuntu si deseas ejecutar el proyecto en un contenedor.
-- Python: Puedes seguir la [documentación oficial de Python](https://www.python.org/downloads/) para instalar Python en Ubuntu si deseas ejecutar el proyecto de forma nativa.
-- Virtualenv: Puedes instalarlo utilizando pip si optas por ejecutar el proyecto de forma nativa:
+- **Docker:** Puedes seguir la [documentación oficial de Docker](https://docs.docker.com/engine/install/ubuntu/) para instalar Docker en Ubuntu si deseas ejecutar el proyecto en un contenedor.
+- **Python:** Puedes seguir la [documentación oficial de Python](https://www.python.org/downloads/) para instalar Python en Ubuntu si deseas ejecutar el proyecto de forma nativa.
+- **Virtualenv:** Puedes instalarlo utilizando pip si optas por ejecutar el proyecto de forma nativa:
 
    ```bash
    pip install virtualenv
    ```
+
+- **MySQL:** Puedes instalar MySQL utilizando los siguientes comandos:
+
+  ```bash
+  sudo apt update
+  sudo apt install mysql-server
+  ```
+
+  Una vez instalado MySQL, puedes iniciar el servicio con:
+
+  ```bash
+  sudo service mysql start
+  ```
 
 ## Configuración de Entorno (.env)
 
