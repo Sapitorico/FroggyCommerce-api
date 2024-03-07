@@ -111,6 +111,20 @@ JWT_SECRET=        # Clave secreta para tokens JWT
 
 ### Utilizando Docker
 
+1. Construye la imagen Docker ejecutando el siguiente comando en el directorio del proyecto:
+
+    ```bash
+    docker build -t ecommerce-app .
+    ```
+
+   Este comando construirá la imagen Docker utilizando el Dockerfile presente en el directorio actual y la etiquetará como `ecommerce-app`.
+
+2. Una vez que la imagen se haya construido correctamente, puedes ejecutar el contenedor Docker utilizando el siguiente comando:
+
+    ```bash
+    docker run -d -p 8000:8000 ecommerce-app
+    ```
+
 ### Ejecución Local
 
 Para ejecutar el proyecto localmente, sigue estos pasos:

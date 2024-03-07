@@ -1,4 +1,3 @@
-from flask import jsonify
 from mysql.connector import connect
 from src.utils.decorators.Singelton import singelton
 import os
@@ -27,4 +26,4 @@ class DBConnection():
             )
         except Exception as e:
             self.connection = None
-            return jsonify({"success": False, "Error": str(e)})
+            print(f"Error: {str(e)}")

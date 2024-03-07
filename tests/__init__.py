@@ -6,7 +6,8 @@ import os
 
 from dotenv import load_dotenv
 
-load_dotenv('.env.testing')
+load_dotenv()
+
 
 current_directory = os.path.dirname(os.path.abspath(__file__))
 

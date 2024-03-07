@@ -2,12 +2,15 @@
 
 SQL_SCRIPT="./schema/script.sql"
 
-read -s -p "Ingrese la contraseña de MySQL: " MYSQL_PASSWORD
-echo ""
+# Check if MYSQL_PASSWORD environment variable is defined
+if [ -z "$MYSQL_PASSWORD" ]; then
+    echo "Error: MYSQL_PASSWORD environment variable is not defined."
+    exit 1
+fi
 
 check_file_existence() {
     if [ ! -f "$1" ]; then
-        echo "Error: El archivo $1 no existe."
+        echo "Error: File $1 does not exist."
         exit 1
     fi
 }
@@ -17,13 +20,13 @@ execute_sql_script() {
 }
 
 show_table_structure() {
-    # Obtener la lista de tablas
-    tables=$(mysql -u root -p"$MYSQL_PASSWORD" -e "USE ecommerce_db; SHOW TABLES;" | tail -n +2)
+    # Get list of tables
+    tables=$(mysql -u root -p"$MYSQL_PASSWORD" -e "USE ${MYSQL_DB}; SHOW TABLES;" | tail -n +2)
 
-    # Mostrar la estructura de cada tabla
+    # Show structure of each table
     for table in $tables; do
-        echo "Estructura de la tabla $table:"
-        mysql -u root -p"$MYSQL_PASSWORD" -e "USE ecommerce_db; DESCRIBE $table;"
+        echo "Table structure for $table:"
+        mysql -u root -p"$MYSQL_PASSWORD" -e "USE ${MYSQL_DB}; DESCRIBE $table;"
         echo ""
     done
 }
@@ -32,10 +35,10 @@ main() {
     check_file_existence "$SQL_SCRIPT"
     execute_sql_script "$SQL_SCRIPT"
     if [ $? -eq 0 ]; then
-        echo "El script SQL se ha ejecutado correctamente."
+        echo "SQL script executed successfully."
         show_table_structure
     else
-        echo "Error: No se pudo ejecutar el script SQL."
+        echo "Error: Failed to execute SQL script."
         exit 1
     fi
 }
