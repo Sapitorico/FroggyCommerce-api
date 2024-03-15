@@ -41,7 +41,7 @@ class ModelUser():
             cursor = db.cursor()
             user_id = str(uuid.uuid4())
             cursor.callproc(
-                "Register", (user_id, user.full_name, user.email, user.password))
+                "Register", (user_id, user.full_name, user.username, user.email, user.phone_number, user.password))
             for result in cursor.stored_results():
                 message = result.fetchone()[0]
             if message == 'already_exists':
@@ -71,12 +71,14 @@ class ModelUser():
                 return jsonify({"success": False, "message": "Incorrect credentials"}), 400
             user = User(id=existing_user[0],
                         full_name=existing_user[1],
-                        email=existing_user[2],
+                        username=existing_user[2],
+                        email=existing_user[3],
+                        phone_number=existing_user[4],
                         password=User.check_password(
-                            existing_user[3], user.password),
-                        user_type=existing_user[4],
-                        created_at=existing_user[5],
-                        updated_at=existing_user[6])
+                            existing_user[5], user.password),
+                        user_type=existing_user[6],
+                        created_at=existing_user[7],
+                        updated_at=existing_user[8])
             if user.password == False:
                 return jsonify({"success": False, "message": "Incorrect credentials"}), 400
             token = Security.generate_token(user)
@@ -209,12 +211,26 @@ class ModelUser():
         elif len(data['full_name'].split(' ')) < 2:
             return jsonify({"success": False, "message": "Full name field must contain both first and last name"}), 400
 
+        if 'username' not in data:
+            return jsonify({"success": False, "message": "Field 'username' is required"}), 400
+        elif not isinstance(data['username'], str) or len(data['username']) == 0:
+            return jsonify({"success": False, "message": "Field 'username' must be a non-empty string"}), 400
+        elif len(data['password']) < 5:
+            return jsonify({"success": False, "message": "'username' must be at least 5 characters long"}), 400
+
         if 'email' not in data:
             return jsonify({"success": False, "message": "Field 'email' is required"}), 400
         elif not isinstance(data['email'], str) or len(data['email']) == 0:
             return jsonify({"success": False, "message": "Field 'email' must be a non-empty string"}), 400
         elif not re.match(r"[^@]+@[^@]+\.[^@]+", data['email']):
             return jsonify({"success": False, "message": "Invalid email format"}), 400
+
+        if 'phone_number' not in data:
+            return jsonify({"success": False, "message": "Field 'phone_number' is required"}), 400
+        elif not isinstance(data['phone_number'], str) or len(data['phone_number']) == 0:
+            return jsonify({"success": False, "message": "Field 'phone_number' must be a non-empty string"}), 400
+        elif not data['phone_number'].isdigit():
+            return jsonify({"success": False, "message": "Invalid phone number format"}), 400
 
         if 'password' not in data:
             return jsonify({"success": False, "message": "Field 'password' is required"}), 400

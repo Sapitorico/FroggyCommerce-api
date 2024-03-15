@@ -36,7 +36,9 @@ def register():
         if validation_error:
             return validation_error
         user = User(full_name=data.get('full_name'),
+                    username=data.get('username'),
                     email=data.get('email'),
+                    phone_number=data.get('phone_number'),
                     password=User.hash_password(data.get('password')),
                     user_type='customer')
         response = ModelUser.register(db.connection, user)

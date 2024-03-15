@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SQL_SCRIPT="./schema/script.sql"
+SQL_SCRIPT="./schema/schema.sql"
 
 # Check if MYSQL_PASSWORD environment variable is defined
 if [ -z "$MYSQL_PASSWORD" ]; then
