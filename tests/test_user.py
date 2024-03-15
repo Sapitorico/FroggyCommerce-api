@@ -11,9 +11,11 @@ class TestUser(unittest.TestCase):
         user_data = {
             'id': 1,
             'full_name': 'John Doe',
+            'username': "johndoe",
             'email': 'johndoe@example.com',
+            'phone_number': '1234567890',
             'password': 'password123',
-            'user_type': 'admin',
+            'user_type': 'customer',
             'created_at': datetime.now(),
             'updated_at': datetime.now()
         }
@@ -30,9 +32,11 @@ class TestUser(unittest.TestCase):
         user_data = {
             'id': 1,
             'full_name': 'John Doe',
+            'username': 'johndoe',
             'email': 'johndoe@example.com',
+            'phone_number': '1234567890',
             'password': 'password123',
-            'user_type': 'admin',
+            'user_type': 'customer',
             'created_at': datetime.now(),
             'updated_at': datetime.now()
         }
@@ -40,7 +44,9 @@ class TestUser(unittest.TestCase):
         user_dict = user.to_dict()
         self.assertEqual(user_dict['id'], user_data['id'])
         self.assertEqual(user_dict['full_name'], user_data['full_name'])
+        self.assertEqual(user_dict['username'], user_data['username'])
         self.assertEqual(user_dict['email'], user_data['email'])
+        self.assertEqual(user_dict['phone_number'], user_data['phone_number'])
         self.assertEqual(user_dict['user_type'], user_data['user_type'])
         self.assertEqual(
             user_dict['created_at'], user_data['created_at'].strftime('%Y-%m-%d %H:%M:%S'))
