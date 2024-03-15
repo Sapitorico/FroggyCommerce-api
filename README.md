@@ -170,7 +170,9 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
      ```json
      {
        "full_name": "Nombre Usuario",
+       "username": "Username",
        "email": "example@example.com",
+       "phone_number": "Numero de telefono",
        "password": "password123"
      }
      ```
