@@ -14,15 +14,18 @@ class TestModelUser(BaseTestContext):
 
     def register_user(self):
         user = User(full_name="Sapito Rico",
+                    username="sapitorico",
                     email="example@gmail.com",
-                    password=User.hash_password("12345678"),
-                    user_type='customer')
+                    phone_number="1234567890",
+                    password=User.hash_password("12345678"))
         ModelUser.register(self.connection, user)
 
     def test_valid_data(self):
         data = {
             "full_name": "John Doe",
+            "username": "johndoe",
             "email": "johndoe@example.com",
+            "phone_number": "1234567890",
             "password": "password123"
         }
 
@@ -37,10 +40,25 @@ class TestModelUser(BaseTestContext):
                          "success": False, "message": "No data provided"})
         self.assertEqual(result[1], 400)
 
+    def test_invalid_username(self):
+        data = {
+            "full_name": "Sapito Rico",
+            "username": "",
+            "email": "emailexample@gmail.com",
+            "phone_number": "1234567890",
+            "password": "12345678"
+        }
+        result = ModelUser.validate(data)
+        self.assertEqual(result[0].json, {
+            "success": False, "message": "Field 'username' must be a non-empty string"})
+        self.assertEqual(result[1], 400)
+
     def test_invalid_email(self):
         data = {
             "full_name": "Sapito Rico",
+            "username": "sapitorico",
             "email": "emailexample.com",
+            "phone_number": "1234567890",
             "password": "12345678"
         }
 
@@ -49,10 +67,25 @@ class TestModelUser(BaseTestContext):
                          "success": False, "message": "Invalid email format"})
         self.assertEqual(result[1], 400)
 
+    def test_invalid_phone_number(self):
+        data = {
+            "full_name": "Sapito Rico",
+            "username": "sapitorico",
+            "email": "emailexample@gmail.com",
+            "phone_number": "12345abc",
+            "password": "12345678"
+        }
+        result = ModelUser.validate(data)
+        self.assertEqual(result[0].json, {
+            "success": False, "message": "Invalid phone number format"})
+        self.assertEqual(result[1], 400)
+
     def test_invalid_password(self):
         data = {
             "full_name": "Sapito RIco",
+            "username": "sapitorico",
             "email": "emailexample@gmail.com",
+            "phone_number": "1234567890",
             "password": "123"
         }
         result = ModelUser.validate(data)
@@ -63,7 +96,9 @@ class TestModelUser(BaseTestContext):
     def test_invalid_full_name(self):
         data = {
             "full_name": "Sapito",
+            "username": "sapitorico",
             "email": "emailexample@gmail.com",
+            "phone_number": "1234567890",
             "password": "12345678"
         }
         result = ModelUser.validate(data)
@@ -73,7 +108,9 @@ class TestModelUser(BaseTestContext):
 
     def test_success_register(self):
         user = User(full_name="Sapito Rico",
+                    username="sapitorico",
                     email="example@gmail.com",
+                    phone_number="1234567890",
                     password=User.hash_password("12345678"))
         response = ModelUser.register(self.connection, user)
         self.assertIsInstance(response, tuple)
@@ -83,9 +120,10 @@ class TestModelUser(BaseTestContext):
 
     def test_already_registered(self):
         user = User(full_name="Sapito Rico",
-                    email="example@gmail.com",
-                    password=User.hash_password("12345678"),
-                    user_type='customer')
+            username="sapitorico",
+            email="example@gmail.com",
+            phone_number="1234567890",
+            password=User.hash_password("12345678"))
         ModelUser.register(self.connection, user)
         response = ModelUser.register(self.connection, user)
         self.assertIsInstance(response, tuple)
@@ -102,9 +140,12 @@ class TestModelUser(BaseTestContext):
         self.assertEqual(response[0].json['message'],
                          "Successful login, welcome 'Sapito Rico'")
         self.assertEqual(response[0].json['success'], True)
+        self.assertEqual(response[0].json['user']['full_name'], "Sapito Rico")
+        self.assertEqual(response[0].json['user']['username'], "sapitorico")
         self.assertEqual(response[0].json['user']
                          ['email'], "example@gmail.com")
-        self.assertEqual(response[0].json['user']['full_name'], "Sapito Rico")
+        self.assertEqual(response[0].json['user']
+                         ['phone_number'], "1234567890")
         self.assertEqual(response[0].json['user']['user_type'], "customer")
         self.assertEqual(response[1], 200)
         self.assertIn('id', response[0].json['user'])

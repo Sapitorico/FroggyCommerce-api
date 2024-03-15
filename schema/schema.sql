@@ -525,6 +525,33 @@ END$$
 DELIMITER ;
 
 -- -----------------------------------------------------
+-- procedure Add_address
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Add_address`(
+    IN p_id VARCHAR(36),
+    IN p_user_id VARCHAR(36),
+    IN p_state VARCHAR(150),
+    IN p_city VARCHAR(150),
+    IN p_address TEXT
+)
+BEGIN
+    DECLARE user_count INT;
+
+    IF NOT EXISTS (SELECT id FROM users WHERE id = p_user_id) THEN
+        SELECT 'not_exist';
+    ELSE
+        INSERT INTO address (id, user_id, state, city, address)
+        VALUES (p_id, p_user_id, p_state, p_city, p_address);
+        SELECT 'success';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
 -- procedure Remove_to_cart
 -- -----------------------------------------------------
 

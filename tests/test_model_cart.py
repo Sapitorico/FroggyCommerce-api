@@ -16,9 +16,10 @@ class TestModelCart(BaseTestContext):
 
     def register_user(self):
         user = User(full_name="Sapito Rico",
+                    username="sapitorico",
                     email="example@gmail.com",
-                    password=User.hash_password("12345678"),
-                    user_type='customer')
+                    phone_number="12345678",
+                    password=User.hash_password("12345678"))
         ModelUser.register(self.connection, user)
         data = User(email="example@gmail.com",
                     password="12345678")
