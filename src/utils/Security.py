@@ -31,6 +31,7 @@ class Security():
             "exp": datetime.now(tz=cls.tz) + timedelta(days=1),
             "id": user.id,
             "full_name": user.full_name,
+            "username": user.username,
             "email": user.email,
             "user_type": user.user_type,
         }

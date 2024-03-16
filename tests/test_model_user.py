@@ -120,10 +120,10 @@ class TestModelUser(BaseTestContext):
 
     def test_already_registered(self):
         user = User(full_name="Sapito Rico",
-            username="sapitorico",
-            email="example@gmail.com",
-            phone_number="1234567890",
-            password=User.hash_password("12345678"))
+                    username="sapitorico",
+                    email="example@gmail.com",
+                    phone_number="1234567890",
+                    password=User.hash_password("12345678"))
         ModelUser.register(self.connection, user)
         response = ModelUser.register(self.connection, user)
         self.assertIsInstance(response, tuple)
@@ -203,6 +203,10 @@ class TestModelUser(BaseTestContext):
         self.assertEqual(response[0].json['user']
                          ['email'], res[0].json['user']['email'])
         self.assertEqual(response[0].json['user']
+                         ['phone_number'], res[0].json['user']['phone_number'])
+        self.assertEqual(response[0].json['user']
+                         ['username'], res[0].json['user']['username'])
+        self.assertEqual(response[0].json['user']
                          ['full_name'], res[0].json['user']['full_name'])
         self.assertEqual(response[0].json['user']['user_type'],
                          response[0].json['user']['user_type'])
@@ -227,7 +231,7 @@ class TestModelUser(BaseTestContext):
         res = ModelUser.login(self.connection, data)
         id = res[0].json['user']['id']
         response = ModelUser.update_user(
-            self.connection, id, {"full_name": res[0].json['user']['full_name'], "email": "update@gmail.com", "password": "87654321"})
+            self.connection, id, {"full_name": res[0].json['user']['full_name'], "username": "username2", "email": "update@gmail.com", "phone_number": "094356562", "password": "87654321"})
         updated_user = ModelUser.get_user_by_id(self.connection, id)
         self.assertIsInstance(response, tuple)
         self.assertEqual(response[0].json['message'],
@@ -236,12 +240,16 @@ class TestModelUser(BaseTestContext):
         self.assertEqual(response[1], 200)
         self.assertEqual(updated_user[0].json['user']
                          ['email'], "update@gmail.com")
+        self.assertEqual(updated_user[0].json['user']
+                         ['phone_number'], "094356562")
+        self.assertEqual(updated_user[0].json['user']
+                         ['username'], "username2")
         self.assertEqual(
             updated_user[0].json['user']['full_name'], res[0].json['user']['full_name'])
 
     def test_update_user_fail(self):
         response = ModelUser.update_user(
-            self.connection, 1, {"full_name": "Sapito Rico", "email": "update@gmail.com", "password": "87654321"})
+            self.connection, 1, {"full_name": "Sapito Rico", "username": "username", "email": "update@gmail.com", "phone_number": "21321312", "password": "87654321"})
         self.assertIsInstance(response, tuple)
         self.assertEqual(response[0].json, {
                          "success": False, "message": "User not found"})

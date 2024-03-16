@@ -134,10 +134,12 @@ class ModelUser():
                 return jsonify({"success": False, "message": "User not found"}), 404
             user = User(id=user[0],
                         full_name=user[1],
-                        email=user[2],
-                        user_type=user[3],
-                        created_at=user[4],
-                        updated_at=user[5]).to_dict()
+                        username=user[2],
+                        email=user[3],
+                        phone_number=user[4],
+                        user_type=user[5],
+                        created_at=user[6],
+                        updated_at=user[7]).to_dict()
             return jsonify({"success": True, "message": "User fetched successfully", "user": user}), 200
         except Exception as e:
             return jsonify({"success": False, "Error": str(e)}), 500
@@ -155,8 +157,8 @@ class ModelUser():
         """
         try:
             cursor = db.cursor()
-            cursor.callproc("Update_user", (id, data_user['full_name'],
-                            data_user['email'], User.hash_password(data_user['password'])))
+            cursor.callproc("Update_user", (id, data_user['full_name'], data_user['username'],
+                            data_user['email'], data_user['phone_number'], User.hash_password(data_user['password'])))
             for result in cursor.stored_results():
                 message = result.fetchone()[0]
             if message == 'not_exist':
@@ -215,8 +217,6 @@ class ModelUser():
             return jsonify({"success": False, "message": "Field 'username' is required"}), 400
         elif not isinstance(data['username'], str) or len(data['username']) == 0:
             return jsonify({"success": False, "message": "Field 'username' must be a non-empty string"}), 400
-        elif len(data['username']) < 5:
-            return jsonify({"success": False, "message": "'username' must be at least 5 characters long"}), 400
 
         if 'email' not in data:
             return jsonify({"success": False, "message": "Field 'email' is required"}), 400

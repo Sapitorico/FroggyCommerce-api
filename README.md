@@ -205,6 +205,8 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
      {
        "email": "nuevo_email@example.com",
        "full_name": "Nuevo Nombre Usuario",
+       "username": "nuevo username",
+       "phone_number": "nuevo numero de telefono",
        "password": "nueva_contraseña123"
      }
      ```

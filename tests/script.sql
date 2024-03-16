@@ -627,25 +627,27 @@ USE `ecommerce_db_test`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `Update_user`(
     IN p_id VARCHAR(36),
     IN p_full_name VARCHAR(150),
+    IN p_username VARCHAR(50),
     IN p_email VARCHAR(150),
+    IN p_phone_number VARCHAR(50),
     IN p_password VARCHAR(255)
 )
 BEGIN
     DECLARE v_count INT;
 
-    SELECT COUNT(*) INTO v_count FROM users WHERE id = p_id;
-
-    IF v_count != 0 THEN
+    IF NOT EXISTS (SELECT id FROM users WHERE id = p_id) THEN
+        SELECT 'not_exist';
+    ELSE
         UPDATE users
-        SET full_name = p_full_name, email = p_email, password = p_password, updated_at = NOW()
+        SET full_name = p_full_name, username = p_username, email = p_email,
+        phone_number = p_phone_number, password = p_password, updated_at = NOW()
         WHERE id = p_id;
         SELECT 'success';
-    ELSE
-        SELECT 'not_exist';
     END IF;
 END$$
 
 DELIMITER ;
+
 
 -- -----------------------------------------------------
 -- procedure User_by_id
@@ -655,7 +657,7 @@ DELIMITER $$
 USE `ecommerce_db_test`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `User_by_id`(IN p_id VARCHAR(36))
 BEGIN
-	SELECT id, full_name, email, user_type, created_at, updated_at
+	SELECT id, full_name, username, email, phone_number, user_type, created_at, updated_at
     FROM users
     WHERE id = p_id;
 END$$
