@@ -655,7 +655,7 @@ DELIMITER $$
 USE `ecommerce_db`$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `User_by_id`(IN p_id VARCHAR(36))
 BEGIN
-	SELECT id, full_name, email, user_type, created_at, updated_at
+	SELECT id, full_name, username, email, phone_number, user_type, created_at, updated_at
     FROM users
     WHERE id = p_id;
 END$$

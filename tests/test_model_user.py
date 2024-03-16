@@ -120,10 +120,10 @@ class TestModelUser(BaseTestContext):
 
     def test_already_registered(self):
         user = User(full_name="Sapito Rico",
-            username="sapitorico",
-            email="example@gmail.com",
-            phone_number="1234567890",
-            password=User.hash_password("12345678"))
+                    username="sapitorico",
+                    email="example@gmail.com",
+                    phone_number="1234567890",
+                    password=User.hash_password("12345678"))
         ModelUser.register(self.connection, user)
         response = ModelUser.register(self.connection, user)
         self.assertIsInstance(response, tuple)
@@ -202,6 +202,10 @@ class TestModelUser(BaseTestContext):
         self.assertEqual(response[0].json['success'], res[0].json['success'])
         self.assertEqual(response[0].json['user']
                          ['email'], res[0].json['user']['email'])
+        self.assertEqual(response[0].json['user']
+                         ['phone_number'], res[0].json['user']['phone_number'])
+        self.assertEqual(response[0].json['user']
+                         ['username'], res[0].json['user']['username'])
         self.assertEqual(response[0].json['user']
                          ['full_name'], res[0].json['user']['full_name'])
         self.assertEqual(response[0].json['user']['user_type'],
