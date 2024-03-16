@@ -157,8 +157,8 @@ class ModelUser():
         """
         try:
             cursor = db.cursor()
-            cursor.callproc("Update_user", (id, data_user['full_name'],
-                            data_user['email'], User.hash_password(data_user['password'])))
+            cursor.callproc("Update_user", (id, data_user['full_name'], data_user['username'],
+                            data_user['email'], data_user['phone_number'], User.hash_password(data_user['password'])))
             for result in cursor.stored_results():
                 message = result.fetchone()[0]
             if message == 'not_exist':
@@ -217,8 +217,6 @@ class ModelUser():
             return jsonify({"success": False, "message": "Field 'username' is required"}), 400
         elif not isinstance(data['username'], str) or len(data['username']) == 0:
             return jsonify({"success": False, "message": "Field 'username' must be a non-empty string"}), 400
-        elif len(data['username']) < 5:
-            return jsonify({"success": False, "message": "'username' must be at least 5 characters long"}), 400
 
         if 'email' not in data:
             return jsonify({"success": False, "message": "Field 'email' is required"}), 400

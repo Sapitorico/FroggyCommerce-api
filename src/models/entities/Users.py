@@ -51,13 +51,14 @@ class User():
         """
         Converts the User object to a dictionary.
         """
-        return {
+        data = {
             "id": self.id,
             "full_name": self.full_name,
             "username": self.username,
             "email": self.email,
             "phone_number": self.phone_number,
             "user_type": self.user_type,
-            "created_at": self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-            "updated_at": self.updated_at.strftime('%Y-%m-%d %H:%M:%S')
+            "created_at": self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
+            "updated_at": self.updated_at.strftime('%Y-%m-%d %H:%M:%S') if self.updated_at else None
         }
+        return {key: value for key, value in data.items() if value is not None}
