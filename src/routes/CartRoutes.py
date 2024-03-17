@@ -24,7 +24,7 @@ def get_cart(user_id):
         user_id (str): user ID
     """
     if request.method == 'GET':
-        response = ModelCart.get_cart(db, user_id)
+        response = ModelCart.get_cart(db.connection, user_id)
         return response
 
 
@@ -42,7 +42,7 @@ def add_to_cart(user_id):
         valid_data = ModelCart.validate(data)
         if valid_data:
             return valid_data
-        response = ModelCart.add_to_cart(db, user_id, data)
+        response = ModelCart.add_to_cart(db.connection, user_id, data)
         return response
 
 
@@ -57,5 +57,5 @@ def delete(user_id, id):
         id (str): ID of the product to be removed from the cart
     """
     if request.method == 'DELETE':
-        response = ModelCart.remove_to_cart(db, user_id, id)
+        response = ModelCart.remove_to_cart(db.connection, user_id, id)
         return response

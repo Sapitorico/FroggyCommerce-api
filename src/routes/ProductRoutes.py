@@ -23,7 +23,7 @@ def get_products():
     Obtains all products
     """
     if request.method == 'GET':
-        response = ModelProduct.get_products(db)
+        response = ModelProduct.get_products(db.connection)
         return response
 
 
@@ -36,7 +36,7 @@ def get_product(id):
         id (str): ID of the product
     """
     if request.method == 'GET':
-        response = ModelProduct.get_product_by_id(db, id)
+        response = ModelProduct.get_product_by_id(db.connection, id)
         return response
 
 
@@ -56,7 +56,7 @@ def create_product():
                           price=data['price'],
                           stock=data['stock'],
                           category=data['category'])
-        response = ModelProduct.create(db, product)
+        response = ModelProduct.create(db.connection, product)
     return response
 
 
@@ -74,7 +74,7 @@ def update_product(id):
         valid_data = ModelProduct.validate(data)
         if valid_data:
             return valid_data
-        response = ModelProduct.update_product(db, id, data)
+        response = ModelProduct.update_product(db.connection, id, data)
         return response
 
 
@@ -88,5 +88,5 @@ def delete_product(id):
         id (str): ID of the product to be deleted
     """
     if request.method == 'DELETE':
-        response = ModelProduct.delete_product(db, id)
+        response = ModelProduct.delete_product(db.connection, id)
         return response
