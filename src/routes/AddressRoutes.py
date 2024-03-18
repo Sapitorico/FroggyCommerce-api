@@ -59,10 +59,11 @@ def add_new_address(user_id):
 @Security.verify_session
 def get_address(user_id, id):
     """
-    List addresses for a specific user.
+    Retrieves an address from the database based on its unique identifier.
 
     Parameters:
-    - user_id (str): The ID of the user whose addresses are to be listed.
+        user_id (str): The ID of the user making the request.
+        id (str): The unique identifier for the address.
     """
     if request.method == 'GET':
         response = ModelAddress.get_address_by_id(db.connection, id)
