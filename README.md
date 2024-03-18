@@ -235,6 +235,20 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
   - **Endpoint:** `/address/{address_id}`
   - **Descripción:** Este endpoint permite ver una direccion asociada al perfil del usuario actual.
 
+- **Actualizar Dirección (requiere token de sesión)**
+  - **Método HTTP:** PUT
+  - **Endpoint:** `/address/update/{address_id}`
+  - **Descripción:** Este endpoint permite actualizar la informacio de una dirección asociada al perfil del usuario actual.
+  - **Ejemplo de Cuerpo de la Solicitud (JSON):**
+
+    ```json
+    {
+      "state": "Nuevo state",
+      "city": "Nuava city",
+      "address": "Nueva address"
+    }
+    ```
+
 - **Eliminar Usuario (requiere token de sesión)**
   - **Método HTTP:** DELETE
   - **Endpoint:** `users/delete`

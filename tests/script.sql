@@ -582,6 +582,30 @@ END$$
 DELIMITER ;
 
 -- -----------------------------------------------------
+-- procedure Update_address
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db_test`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Update_address`(
+    IN p_id VARCHAR(36),
+    IN p_state VARCHAR(150),
+    IN p_city VARCHAR(150),
+    IN p_address TEXT
+)
+BEGIN
+    IF NOT EXISTS (SELECT id FROM address WHERE id = p_id) THEN
+        SELECT 'not_exist';
+    ELSE
+        UPDATE address SET state = p_state, city = p_city, address = p_address
+        WHERE id = p_id;
+        SELECT 'success';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
 -- procedure Remove_to_cart
 -- -----------------------------------------------------
 

@@ -55,6 +55,7 @@ def add_new_address(user_id):
         response = ModelAddress.add_address(db.connection, user_id, address)
         return response
 
+
 @address.route('/<string:id>', methods=['GET'])
 @Security.verify_session
 def get_address(user_id, id):
@@ -67,4 +68,26 @@ def get_address(user_id, id):
     """
     if request.method == 'GET':
         response = ModelAddress.get_address_by_id(db.connection, id)
+        return response
+
+
+@address.route('/update/<string:id>', methods=['PUT'])
+@Security.verify_session
+def update_address(user_id, id):
+    """
+    Updates an address in the database based on its unique identifier.
+
+    Parameters:
+    - user_id (str): The ID of the user making the request.
+    - id (str): The unique identifier for the address.
+    """
+    if request.method == 'PUT':
+        data = request.json
+        validation_error = ModelAddress.validate(data)
+        if validation_error:
+            return validation_error
+        address = Address(state=data['state'],
+                          city=data['city'],
+                          address=data['address'])
+        response = ModelAddress.update_address(db.connection, id, address)
         return response

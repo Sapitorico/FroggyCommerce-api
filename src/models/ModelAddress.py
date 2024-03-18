@@ -106,6 +106,39 @@ class ModelAddress():
         finally:
             cursor.close()
 
+    @classmethod
+    def update_address(cls, db, id, address):
+        """
+        Updates an address in the database based on its unique identifier.
+
+        Parameters:
+        - db (database connection): The connection to the database.
+        - id (str): The unique identifier for the address.
+        - address (Address object): The updated address.
+
+        Returns:
+        - JSON response: A JSON response indicating the success or failure of the update operation.
+
+        Raises:
+        - Exception: If an error occurs during the operation.
+
+        """
+        try:
+            cursor = db.cursor()
+            cursor.callproc("Update_address", (id,
+                            address.state, address.city, address.address))
+            for result in cursor.stored_results():
+                message = result.fetchone()[0]
+            if message == 'not_exist':
+                return jsonify({"success": False, "message": "Address not found"}), 404
+            elif message == 'success':
+                db.commit()
+                return jsonify({"success": True, "message": "Address updated successfully"}), 200
+        except Exception as e:
+            return jsonify({"success": False, "Error": str(e)}), 500
+        finally:
+            cursor.close()
+
     @staticmethod
     def validate(data):
         """

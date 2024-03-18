@@ -90,6 +90,19 @@ class TestModelAddress(BaseTestContext):
         self.assertEqual(response[1], 200)
         self.assertEqual(response[0].json['success'], True)
 
+    def test_update_address(self):
+        user_id = self.register_user()
+        self.add_address(user_id)
+        response = ModelAddress.list_addresses(self.connection, user_id)
+        address_id = response[0].json['addresses'][0]['id']
+        address = Address(state="state",
+                          city="city",
+                          address="address")
+        response = ModelAddress.update_address(
+            self.connection, address_id, address)
+        self.assertEqual(response[1], 200)
+        self.assertEqual(response[0].json, {
+                         "success": True, "message": "Address updated successfully"})
 
 if __name__ == '__main__':
     unittest.main()
