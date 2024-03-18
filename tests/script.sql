@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `ecommerce_db_test`.`address` (
   `address` TEXT NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
-  UNIQUE INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
+  INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
   CONSTRAINT `fk_address_user_id`
     FOREIGN KEY (`user_id`)
     REFERENCES `ecommerce_db_test`.`users` (`id`)

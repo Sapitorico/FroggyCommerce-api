@@ -54,7 +54,7 @@ Los clientes tienen la capacidad de realizar las siguientes acciones:
   - Ver los productos disponibles en la plataforma, incluyendo detalles como precios, descripciones y categorías.
   
 - **Perfil de Usuario:**
-  - Actualizar su propio perfil, incluyendo información personal y detalles de contacto.
+  - Actualizar su propio perfil, incluyendo información personal, direcciones y detalles de contacto.
 
 - **Carrito de Compras:**
   - Agregar, eliminar y actualizar productos en el carrito, incluyendo la cantidad deseada.
@@ -210,6 +210,20 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
        "password": "nueva_contraseña123"
      }
      ```
+
+- **Agregar Dirección al Usuario (requiere token de sesión)**
+  - **Método HTTP:** POST
+  - **Endpoint:** `/address/add`
+  - **Descripción:** Este endpoint permite agregar una nueva dirección al perfil del usuario actual.
+  - **Ejemplo de Cuerpo de la Solicitud (JSON):**
+
+    ```json
+    {
+      "state": "California",
+      "city": "Los Angeles",
+      "address": "123 Fake Street"
+    }
+    ```
 
 - **Eliminar Usuario (requiere token de sesión)**
   - **Método HTTP:** DELETE

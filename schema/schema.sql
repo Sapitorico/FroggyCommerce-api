@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `ecommerce_db`.`address` (
   `address` TEXT NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
-  UNIQUE INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
+  INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
   CONSTRAINT `fk_address_user_id`
     FOREIGN KEY (`user_id`)
     REFERENCES `ecommerce_db`.`users` (`id`)
@@ -277,39 +277,6 @@ CREATE TABLE IF NOT EXISTS `ecommerce_db`.`taxes` (
 ENGINE = InnoDB;
 
 USE `ecommerce_db` ;
-
--- -----------------------------------------------------
--- procedure Add_to_cart
--- -----------------------------------------------------
-
-DELIMITER $$
-USE `ecommerce_db`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Add_to_cart`(
-    IN p_product_id VARCHAR(36),
-    IN p_user_id VARCHAR(36),
-    IN p_quantity INT,
-    IN p_cart_id VARCHAR(36)
-)
-BEGIN    
-    DECLARE v_id VARCHAR(36);
-    DECLARE current_quantity INT;
-
-    IF NOT EXISTS (SELECT id FROM products WHERE id = p_product_id) THEN
-        SELECT 'not_exist' AS message;
-    ELSE
-        SELECT id, quantity INTO v_id, current_quantity FROM cart WHERE customer_id = p_user_id AND product_id = p_product_id;
-        IF v_id IS NOT NULL THEN
-            UPDATE cart SET quantity = current_quantity + p_quantity WHERE id = v_id;
-            SELECT 'success' AS message;
-        ELSE
-            INSERT INTO cart (id, customer_id, product_id, quantity)
-            VALUES (p_cart_id, p_user_id , p_product_id, p_quantity);
-            SELECT 'success' AS message;
-        END IF;
-    END IF;
-END$$
-
-DELIMITER ;
 
 -- -----------------------------------------------------
 -- procedure Create_product
