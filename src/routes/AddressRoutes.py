@@ -18,6 +18,20 @@ db = DBConnection()
 address = Blueprint('address', __name__)
 
 
+@address.route('/', methods=['GET'])
+@Security.verify_session
+def list_addresses(user_id):
+    """
+    List addresses for a specific user.
+
+    Parameters:
+    - user_id (str): The ID of the user whose addresses are to be listed.
+    """
+    if request.method == 'GET':
+        response = ModelAddress.list_addresses(db.connection, user_id)
+        return response
+
+
 @address.route('/add', methods=['POST'])
 @Security.verify_session
 def add_new_address(user_id):

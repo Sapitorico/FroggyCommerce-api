@@ -519,6 +519,21 @@ END$$
 DELIMITER ;
 
 -- -----------------------------------------------------
+-- procedure List_addresses
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `List_addresses`(
+    IN p_user_id VARCHAR(36)
+)
+BEGIN
+    SELECT id, state, city, address FROM address WHERE user_id = p_user_id;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
 -- procedure Remove_to_cart
 -- -----------------------------------------------------
 

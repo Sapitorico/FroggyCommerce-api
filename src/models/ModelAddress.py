@@ -1,6 +1,9 @@
 import uuid
 from flask import jsonify
 
+# Entities
+from src.models.entities.Address import Address
+
 
 class ModelAddress():
     """
@@ -35,6 +38,37 @@ class ModelAddress():
             elif message == 'success':
                 db.commit()
                 return jsonify({"success": True, "message": "Address added successfully"}), 201
+        except Exception as e:
+            return jsonify({"success": False, "Error": str(e)}), 500
+        finally:
+            cursor.close()
+
+    @classmethod
+    def list_addresses(cls, db, user_id):
+        """
+        Retrieves a list of addresses associated with a user from the database.
+
+        Parameters:
+        - db (database connection): The connection to the database.
+        - user_id (str): The unique identifier for the user.
+
+        Returns:
+        - JSON response: A JSON response containing the list of addresses.
+
+        Raises:
+        - Exception: If an error occurs during the operation.
+
+        """
+        try:
+            cursor = db.cursor()
+            cursor.callproc("List_addresses", (user_id,))
+            for results in cursor.stored_results():
+                result = results.fetchall()
+            addresses = [Address(id=address[0],
+                                 state=address[1],
+                                 city=address[2],
+                                 address=address[3]).to_dict() for address in result]
+            return jsonify({"success": True, "message": "Addresses recovered successfully", "addresses": addresses}), 200
         except Exception as e:
             return jsonify({"success": False, "Error": str(e)}), 500
         finally:

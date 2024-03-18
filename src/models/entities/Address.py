@@ -25,8 +25,8 @@ class Address():
     def to_dict(self):
         data = {
             "id": self.id,
-            "user_id": self.id,
-            "staet": self.state,
+            "user_id": self.user_id,
+            "state": self.state,
             "city": self.city,
             "address": self.address
         }

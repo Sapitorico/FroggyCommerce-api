@@ -26,6 +26,12 @@ class TestModelAddress(BaseTestContext):
         response = ModelUser.login(self.connection, data)
         return response[0].json['user']['id']
 
+    def add_address(self, user_id):
+        address = Address(state="state",
+                          city="city",
+                          address="address")
+        ModelAddress.add_address(self.connection, user_id, address)
+
     def test_validate(self):
         data = {}
         response = ModelAddress.validate(data)
@@ -58,3 +64,23 @@ class TestModelAddress(BaseTestContext):
         self.assertEqual(response[1], 201)
         self.assertEqual(response[0].json, {
                          "success": True, "message": "Address added successfully"})
+
+    def test_add_address_invalid_user(self):
+        address = Address(state="state",
+                          city="city",
+                          address="address")
+        response = ModelAddress.add_address(self.connection, 1, address)
+        self.assertEqual(response[1], 404)
+        self.assertEqual(response[0].json, {
+                         "success": False, "message": "User not found"})
+
+    def test_list_addresses(self):
+        user_id = self.register_user()
+        self.add_address(user_id)
+        response = ModelAddress.list_addresses(self.connection, user_id)
+        self.assertEqual(response[1], 200)
+        self.assertEqual(response[0].json['success'], True)
+
+
+if __name__ == '__main__':
+    unittest.main()
