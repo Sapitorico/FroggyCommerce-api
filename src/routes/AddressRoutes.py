@@ -91,3 +91,17 @@ def update_address(user_id, id):
                           address=data['address'])
         response = ModelAddress.update_address(db.connection, id, address)
         return response
+
+@address.route('/delete/<string:id>', methods=['DELETE'])
+@Security.verify_session
+def delete_address(user_id, id):
+    """
+    Deletes an address from the database based on its unique identifier.
+
+    Parameters:
+    - user_id (str): The ID of the user making the request.
+    - id (str): The unique identifier for the address.
+    """
+    if request.method == 'DELETE':
+        response = ModelAddress.delete_address(db.connection, id)
+        return response

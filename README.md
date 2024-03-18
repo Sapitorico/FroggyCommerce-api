@@ -249,6 +249,11 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
     }
     ```
 
+- **Eliminar Dirección (requiere token de sesión)**
+  - **Método HTTP:** DELETE
+  - **Endpoint:** `/address/delete/{address_id}`
+  - **Descripción:** Este endpoint permite eliminar una direccion asociada al perfil del usuario actual.
+
 - **Eliminar Usuario (requiere token de sesión)**
   - **Método HTTP:** DELETE
   - **Endpoint:** `users/delete`

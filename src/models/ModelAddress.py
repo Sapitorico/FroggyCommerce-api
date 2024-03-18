@@ -139,6 +139,37 @@ class ModelAddress():
         finally:
             cursor.close()
 
+    @classmethod
+    def delete_address(cls, db, id):
+        """
+        Deletes an address from the database based on its unique identifier.
+
+        Parameters:
+        - db (database connection): The connection to the database.
+        - id (str): The unique identifier for the address.
+
+        Returns:
+        - JSON response: A JSON response indicating the success or failure of the delete operation.
+
+        Raises:
+        - Exception: If an error occurs during the operation.
+
+        """
+        try:
+            cursor = db.cursor()
+            cursor.callproc("Delete_address", (id,))
+            for result in cursor.stored_results():
+                message = result.fetchone()[0]
+            if message == 'not_exist':
+                return jsonify({"success": False, "message": "Address not found"}), 404
+            elif message == 'success':
+                db.commit()
+                return jsonify({"success": True, "message": "Address deleted successfully"}), 200
+        except Exception as e:
+            return jsonify({"success": False, "Error": str(e)}), 500
+        finally:
+            cursor.close()
+
     @staticmethod
     def validate(data):
         """

@@ -606,6 +606,26 @@ END$$
 DELIMITER ;
 
 -- -----------------------------------------------------
+-- procedure Delete_address
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db_test`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Delete_address`(
+    IN p_id VARCHAR(36)
+)
+BEGIN
+    IF NOT EXISTS (SELECT id FROM address WHERE id = p_id) THEN
+        SELECT 'not_exist';
+    ELSE
+        DELETE FROM address WHERE id = p_id;
+        SELECT 'success';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
 -- procedure Remove_to_cart
 -- -----------------------------------------------------
 

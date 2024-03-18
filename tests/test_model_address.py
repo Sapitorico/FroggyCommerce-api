@@ -104,5 +104,16 @@ class TestModelAddress(BaseTestContext):
         self.assertEqual(response[0].json, {
                          "success": True, "message": "Address updated successfully"})
 
+    def test_delete_address(self):
+        user_id = self.register_user()
+        self.add_address(user_id)
+        response = ModelAddress.list_addresses(self.connection, user_id)
+        address_id = response[0].json['addresses'][0]['id']
+        response = ModelAddress.delete_address(self.connection, address_id)
+        self.assertEqual(response[1], 200)
+        self.assertEqual(response[0].json, {
+                         "success": True, "message": "Address deleted successfully"})
+
+
 if __name__ == '__main__':
     unittest.main()
