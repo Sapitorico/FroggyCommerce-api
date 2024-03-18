@@ -54,3 +54,16 @@ def add_new_address(user_id):
                           address=data['address'])
         response = ModelAddress.add_address(db.connection, user_id, address)
         return response
+
+@address.route('/<string:id>', methods=['GET'])
+@Security.verify_session
+def get_address(user_id, id):
+    """
+    List addresses for a specific user.
+
+    Parameters:
+    - user_id (str): The ID of the user whose addresses are to be listed.
+    """
+    if request.method == 'GET':
+        response = ModelAddress.get_address_by_id(db.connection, id)
+        return response

@@ -74,6 +74,38 @@ class ModelAddress():
         finally:
             cursor.close()
 
+    @classmethod
+    def get_address_by_id(cls, db, id):
+        """
+        Retrieves an address from the database based on its unique identifier.
+
+        Parameters:
+        - db (database connection): The connection to the database.
+        - id (str): The unique identifier for the address.
+
+        Returns:
+        - JSON response: A JSON response containing the retrieved address.
+
+        Raises:
+        - Exception: If an error occurs during the operation.
+        """
+        try:
+            cursor = db.cursor()
+            cursor.callproc("Get_address", (id,))
+            for result in cursor.stored_results():
+                address = result.fetchone()
+            if not address:
+                return jsonify({"success": False, "message": "Address not found"}), 404
+            address = Address(id=address[0],
+                              state=address[1],
+                              city=address[2],
+                              address=address[3]).to_dict()
+            return jsonify({"success": True, "message": "Addres recovered successfully", "address": address}), 200
+        except Exception as e:
+            return jsonify({"success": False, "Error": str(e)}), 500
+        finally:
+            cursor.close()
+
     @staticmethod
     def validate(data):
         """

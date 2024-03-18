@@ -534,6 +534,21 @@ END$$
 DELIMITER ;
 
 -- -----------------------------------------------------
+-- procedure Get_address
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Get_address`(
+    IN p_id VARCHAR(36)
+)
+BEGIN
+    SELECT id, state, city, address FROM address WHERE id = p_id;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
 -- procedure Remove_to_cart
 -- -----------------------------------------------------
 

@@ -230,6 +230,11 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
   - **Endpoint:** `/address`
   - **Descripción:** Este endpoint permite ver las direcciones asociadas al perfil del usuario actual.
 
+- **Ver Direccióne Espesifica del Usuario (requiere token de sesión)**
+  - **Método HTTP:** GET
+  - **Endpoint:** `/address/{address_id}`
+  - **Descripción:** Este endpoint permite ver una direccion asociada al perfil del usuario actual.
+
 - **Eliminar Usuario (requiere token de sesión)**
   - **Método HTTP:** DELETE
   - **Endpoint:** `users/delete`
