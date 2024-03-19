@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 
 # Routes
-from .routes import AuthRoutes, ProductRoutes, UserRoutes, CartRoutes
+from .routes import AuthRoutes, ProductRoutes, UserRoutes, CartRoutes, AddressRoutes
 
 
 app = Flask(__name__)
@@ -27,5 +27,7 @@ def init_app(config):
     app.register_blueprint(ProductRoutes.product, url_prefix='/api/products')
     # Registering cart routes
     app.register_blueprint(CartRoutes.cart, url_prefix='/api/cart')
+    # Registering address routes
+    app.register_blueprint(AddressRoutes.address, url_prefix='/api/address')
 
     return app

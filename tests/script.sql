@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `ecommerce_db_test`.`address` (
   `address` TEXT NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
-  UNIQUE INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
+  INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
   CONSTRAINT `fk_address_user_id`
     FOREIGN KEY (`user_id`)
     REFERENCES `ecommerce_db_test`.`users` (`id`)
@@ -545,6 +545,80 @@ BEGIN
     ELSE
         INSERT INTO address (id, user_id, state, city, address)
         VALUES (p_id, p_user_id, p_state, p_city, p_address);
+        SELECT 'success';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure List_addresses
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db_test`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `List_addresses`(
+    IN p_user_id VARCHAR(36)
+)
+BEGIN
+    SELECT id, state, city, address FROM address WHERE user_id = p_user_id;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure Get_address
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db_test`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Get_address`(
+    IN p_id VARCHAR(36)
+)
+BEGIN
+    SELECT id, state, city, address FROM address WHERE id = p_id;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure Update_address
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db_test`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Update_address`(
+    IN p_id VARCHAR(36),
+    IN p_state VARCHAR(150),
+    IN p_city VARCHAR(150),
+    IN p_address TEXT
+)
+BEGIN
+    IF NOT EXISTS (SELECT id FROM address WHERE id = p_id) THEN
+        SELECT 'not_exist';
+    ELSE
+        UPDATE address SET state = p_state, city = p_city, address = p_address
+        WHERE id = p_id;
+        SELECT 'success';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure Delete_address
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db_test`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Delete_address`(
+    IN p_id VARCHAR(36)
+)
+BEGIN
+    IF NOT EXISTS (SELECT id FROM address WHERE id = p_id) THEN
+        SELECT 'not_exist';
+    ELSE
+        DELETE FROM address WHERE id = p_id;
         SELECT 'success';
     END IF;
 END$$

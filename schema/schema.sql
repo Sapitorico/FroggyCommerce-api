@@ -113,7 +113,7 @@ CREATE TABLE IF NOT EXISTS `ecommerce_db`.`address` (
   `address` TEXT NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
-  UNIQUE INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
+  INDEX `user_id_UNIQUE` (`user_id` ASC) VISIBLE,
   CONSTRAINT `fk_address_user_id`
     FOREIGN KEY (`user_id`)
     REFERENCES `ecommerce_db`.`users` (`id`)
@@ -279,39 +279,6 @@ ENGINE = InnoDB;
 USE `ecommerce_db` ;
 
 -- -----------------------------------------------------
--- procedure Add_to_cart
--- -----------------------------------------------------
-
-DELIMITER $$
-USE `ecommerce_db`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Add_to_cart`(
-    IN p_product_id VARCHAR(36),
-    IN p_user_id VARCHAR(36),
-    IN p_quantity INT,
-    IN p_cart_id VARCHAR(36)
-)
-BEGIN    
-    DECLARE v_id VARCHAR(36);
-    DECLARE current_quantity INT;
-
-    IF NOT EXISTS (SELECT id FROM products WHERE id = p_product_id) THEN
-        SELECT 'not_exist' AS message;
-    ELSE
-        SELECT id, quantity INTO v_id, current_quantity FROM cart WHERE customer_id = p_user_id AND product_id = p_product_id;
-        IF v_id IS NOT NULL THEN
-            UPDATE cart SET quantity = current_quantity + p_quantity WHERE id = v_id;
-            SELECT 'success' AS message;
-        ELSE
-            INSERT INTO cart (id, customer_id, product_id, quantity)
-            VALUES (p_cart_id, p_user_id , p_product_id, p_quantity);
-            SELECT 'success' AS message;
-        END IF;
-    END IF;
-END$$
-
-DELIMITER ;
-
--- -----------------------------------------------------
 -- procedure Create_product
 -- -----------------------------------------------------
 
@@ -391,6 +358,39 @@ BEGIN
         SELECT "success";
     ELSE
         SELECT "not_exist";
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure Add_to_cart
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Add_to_cart`(
+    IN p_product_id VARCHAR(36),
+    IN p_user_id VARCHAR(36),
+    IN p_quantity INT,
+    IN p_cart_id VARCHAR(36)
+)
+BEGIN    
+    DECLARE v_id VARCHAR(36);
+    DECLARE current_quantity INT;
+
+    IF NOT EXISTS (SELECT id FROM products WHERE id = p_product_id) THEN
+        SELECT 'not_exist' AS message;
+    ELSE
+        SELECT id, quantity INTO v_id, current_quantity FROM cart WHERE customer_id = p_user_id AND product_id = p_product_id;
+        IF v_id IS NOT NULL THEN
+            UPDATE cart SET quantity = current_quantity + p_quantity WHERE id = v_id;
+            SELECT 'success' AS message;
+        ELSE
+            INSERT INTO cart (id, customer_id, product_id, quantity)
+            VALUES (p_cart_id, p_user_id , p_product_id, p_quantity);
+            SELECT 'success' AS message;
+        END IF;
     END IF;
 END$$
 
@@ -545,6 +545,80 @@ BEGIN
     ELSE
         INSERT INTO address (id, user_id, state, city, address)
         VALUES (p_id, p_user_id, p_state, p_city, p_address);
+        SELECT 'success';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure List_addresses
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `List_addresses`(
+    IN p_user_id VARCHAR(36)
+)
+BEGIN
+    SELECT id, state, city, address FROM address WHERE user_id = p_user_id;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure Get_address
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Get_address`(
+    IN p_id VARCHAR(36)
+)
+BEGIN
+    SELECT id, state, city, address FROM address WHERE id = p_id;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure Update_address
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Update_address`(
+    IN p_id VARCHAR(36),
+    IN p_state VARCHAR(150),
+    IN p_city VARCHAR(150),
+    IN p_address TEXT
+)
+BEGIN
+    IF NOT EXISTS (SELECT id FROM address WHERE id = p_id) THEN
+        SELECT 'not_exist';
+    ELSE
+        UPDATE address SET state = p_state, city = p_city, address = p_address
+        WHERE id = p_id;
+        SELECT 'success';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure Delete_address
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Delete_address`(
+    IN p_id VARCHAR(36)
+)
+BEGIN
+    IF NOT EXISTS (SELECT id FROM address WHERE id = p_id) THEN
+        SELECT 'not_exist';
+    ELSE
+        DELETE FROM address WHERE id = p_id;
         SELECT 'success';
     END IF;
 END$$
