@@ -2,7 +2,7 @@ from flask import Flask
 from flask_cors import CORS
 
 # Routes
-from .routes import AuthRoutes, ProductRoutes, UserRoutes, CartRoutes, AddressRoutes
+from .routes import AuthRoutes, ProductRoutes, UserRoutes, CartRoutes, AddressRoutes, PaymentRoutes
 
 
 app = Flask(__name__)
@@ -29,5 +29,7 @@ def init_app(config):
     app.register_blueprint(CartRoutes.cart, url_prefix='/api/cart')
     # Registering address routes
     app.register_blueprint(AddressRoutes.address, url_prefix='/api/address')
-
+    # register payment routes
+    app.register_blueprint(PaymentRoutes.payment, url_prefix='/api/payment')
+    
     return app
