@@ -26,6 +26,7 @@ class ModelOrder():
             elif message == 'success':
                 db.commit()
                 print("ordencreada")
+            print("ordencreada")
         except Exception as e:
             return jsonify({"success": False, "error": str(e)}), 500
         finally:
