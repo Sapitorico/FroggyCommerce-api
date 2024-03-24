@@ -101,7 +101,7 @@ class PaymentServices():
                 payment_details = PaymentDetails(
                     id=payment_info['id'],
                     order_id=order_details_id,
-                    amount=payment_info['transaction_amount']
+                    amount=payment_info['transaction_amount'],
                     status="completed",
                     method="Mercado Pago"
                 )
@@ -127,6 +127,21 @@ class PaymentServices():
 
     @staticmethod
     def validate(data):
+        """
+        Validate the payment method data.
+
+        Parameters:
+        - data (dict): A dictionary containing the payment method data.
+
+        Returns:
+        - None: If the data is valid.
+
+        Raises:
+        - JSONifyError: If no data is provided.
+        - JSONifyError: If the 'method' field is missing.
+        - JSONifyError: If the 'method' is not 'Mercado Pago'.
+
+        """
         if not data:
             return jsonify({"success": False, "message": "No data provided"}), 400
 
