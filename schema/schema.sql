@@ -538,13 +538,38 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Add_address`(
     IN p_address TEXT
 )
 BEGIN
-    DECLARE user_count INT;
-
     IF NOT EXISTS (SELECT id FROM users WHERE id = p_user_id) THEN
         SELECT 'not_exist';
     ELSE
         INSERT INTO address (id, user_id, state, city, address)
         VALUES (p_id, p_user_id, p_state, p_city, p_address);
+        SELECT 'success';
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+-- -----------------------------------------------------
+-- procedure Crate_order
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Crate_order`(
+    IN p_id VARCHAR(36),
+    IN p_user_id VARCHAR(36),
+    IN p_address_id VARCHAR(36)
+)
+BEGIN
+    IF NOT EXISTS (SELECT u.id 
+                FROM users u 
+                LEFT JOIN addresses a ON u.id = a.user_id 
+                WHERE u.id = p_user_id AND a.address IS NOT NULL) THEN
+        SELECT 'not_exist';
+    ELSE
+        INSERT INTO orders (id, customer_id, address_id, status)
+        VALUES (p_id, p_user_id, p_address_id, 'processing');
         SELECT 'success';
     END IF;
 END$$
