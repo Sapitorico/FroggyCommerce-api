@@ -129,7 +129,6 @@ CREATE TABLE IF NOT EXISTS `ecommerce_db`.`orders` (
   `id` VARCHAR(36) NOT NULL,
   `customer_id` VARCHAR(36) NOT NULL,
   `address_id` VARCHAR(36) NOT NULL,
-  `order_date` DATETIME NOT NULL,
   `status` ENUM('processing', 'shipped', 'canceled') NOT NULL DEFAULT 'processing',
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -564,9 +563,13 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Crate_order`(
 BEGIN
     IF NOT EXISTS (SELECT u.id 
                 FROM users u 
-                LEFT JOIN addresses a ON u.id = a.user_id 
+                LEFT JOIN address a ON u.id = a.user_id 
                 WHERE u.id = p_user_id AND a.address IS NOT NULL) THEN
         SELECT 'not_exist';
+    ELSEIF EXISTS (SELECT o.id 
+                FROM orders o 
+                WHERE o.id = p_id) THEN
+        SELECT 'order_exists';
     ELSE
         INSERT INTO orders (id, customer_id, address_id, status)
         VALUES (p_id, p_user_id, p_address_id, 'processing');

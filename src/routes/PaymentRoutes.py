@@ -57,10 +57,9 @@ def notification(user_id, address_id):
             return response
         topic = request.args.get('topic')
         payment_id = request.args.get('id')
-        merchant_order, payment_info = PaymentServices.verify_payment(
+        merchant_order = PaymentServices.verify_payment(
             topic, payment_id)
-        if merchant_order and payment_info:
-            print("hola")
+        if merchant_order:
             ModelOrder.generate_order(
-                db.connection, user_id, address_id, merchant_order, payment_info)
+                db.connection, user_id, address_id, merchant_order)
     return "Received", 200

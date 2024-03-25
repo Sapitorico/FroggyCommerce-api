@@ -43,16 +43,16 @@ class PaymentServices():
     @classmethod
     def verify_payment(cls, topic, payment_id):
         merchant_order = None
-        payment_info = None
         if topic == 'payment':
             payment_info_response = MP_SDK().sdk.payment().get(payment_id)
-            payment_info = payment_info_response["response"]
-            order_id = payment_info_response["response"]["order"]["id"]
-            merchant_order_response = MP_SDK().sdk.merchant_order().get(order_id)
-            merchant_order = merchant_order_response["response"]
+            if payment_info_response['status'] == 200:
+                order_id = payment_info_response["response"]["order"]["id"]
+                merchant_order_response = MP_SDK().sdk.merchant_order().get(order_id)
+                merchant_order = merchant_order_response["response"]
         elif topic == 'merchant_order':
             merchant_order_response = MP_SDK().sdk.merchant_order().get(payment_id)
-            merchant_order = merchant_order_response["response"]
+            if merchant_order_response['status'] == 200:
+                merchant_order = merchant_order_response["response"]
 
         paid_amount = 0
         if merchant_order:
@@ -70,7 +70,7 @@ class PaymentServices():
             else:
                 print("Aún no ha pagado. No libere su artículo.")
 
-        return merchant_order, payment_info
+        return merchant_order
 
     @classmethod
     def verify_user_by_id(cls, db, user_id):
@@ -111,7 +111,7 @@ class PaymentServices():
                 "failure": f"http://localhost:5000/api/payment/failure",
                 "pending": f"http://localhost:5000/api/payment/pending"
             },
-            "notification_url": f"{base_url}/api/payment/notification/{user_id}/{address_id}",
+            "notification_url": f"https://429e-167-58-246-194.ngrok-free.app/api/payment/notification/{user_id}/{address_id}",
             "statement_descriptor": "E-commerce-sapardo",
         }
         return preference_data

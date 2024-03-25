@@ -5,7 +5,7 @@ import uuid
 class ModelOrder():
 
     @classmethod
-    def generate_order(cls, db, user_id, address_id, merchant_order, payment_info):
+    def generate_order(cls, db, user_id, address_id, merchant_order):
         try:
             cursor = db.cursor()
             cursor.callproc(
@@ -20,14 +20,15 @@ class ModelOrder():
             # cursor.callproc("Crate_payment_details",
             #                 (payment_info['id'], order_details_id, payment_info['transaction_amount'],))
             for result in cursor.stored_results():
-                message = result.fetchone()
+                message = result.fetchone()[0]
             if message == 'not_exist':
                 print("el usuairo no existe o la direccion no existe")
+            if message == 'order_exists':
+                print("la order ya existe")
             elif message == 'success':
                 db.commit()
                 print("ordencreada")
-            print("ordencreada")
         except Exception as e:
-            return jsonify({"success": False, "error": str(e)}), 500
+            print("error", str(e))
         finally:
             cursor.close()
