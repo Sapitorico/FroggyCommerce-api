@@ -155,11 +155,7 @@ CREATE TABLE IF NOT EXISTS `ecommerce_db`.`order_details` (
   `id` VARCHAR(36) NOT NULL,
   `order_id` VARCHAR(36) NOT NULL,
   `product_id` VARCHAR(36) NOT NULL,
-  `status` ENUM('pending', 'paid', 'cancelled', 'delivered', 'returned') NOT NULL DEFAULT 'pending',
-  `cancelled_by` ENUM('client', 'administrator', 'expiration') NULL,
-  `cancelled_reason` TEXT NULL,
   `quantity` INT NOT NULL,
-  `unit_price` DECIMAL(10,2) NOT NULL,
   `total_price` DECIMAL(10,2) NOT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -186,7 +182,6 @@ CREATE TABLE IF NOT EXISTS `ecommerce_db`.`payment_details` (
   `status` ENUM('pending', 'completed', 'failed') NOT NULL,
   `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `method` ENUM('Mercado Pago', 'PayPal', 'Handy', 'Otro') NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE INDEX `id_UNIQUE` (`id` ASC) VISIBLE,
   INDEX `fk_pyment_details_order_id_idx` (`order_id` ASC) VISIBLE,
@@ -550,29 +545,80 @@ DELIMITER ;
 
 
 -- -----------------------------------------------------
--- procedure Crate_order
+-- procedure Create_order
 -- -----------------------------------------------------
 
 DELIMITER $$
 USE `ecommerce_db`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Crate_order`(
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Create_order`(
     IN p_id VARCHAR(36),
     IN p_user_id VARCHAR(36),
     IN p_address_id VARCHAR(36)
 )
 BEGIN
-    IF NOT EXISTS (SELECT u.id 
-                FROM users u 
-                LEFT JOIN address a ON u.id = a.user_id 
-                WHERE u.id = p_user_id AND a.address IS NOT NULL) THEN
-        SELECT 'not_exist';
-    ELSEIF EXISTS (SELECT o.id 
-                FROM orders o 
-                WHERE o.id = p_id) THEN
+    IF EXISTS (SELECT id 
+                FROM orders 
+                WHERE id = p_id) THEN
         SELECT 'order_exists';
     ELSE
         INSERT INTO orders (id, customer_id, address_id, status)
         VALUES (p_id, p_user_id, p_address_id, 'processing');
+        SELECT 'success';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure Create_order_details
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Create_order_details`(
+    IN p_id VARCHAR(36),
+    IN p_order_id VARCHAR(36),
+    IN p_product_id VARCHAR(36),
+    IN p_quantity INT,
+    IN p_total_price DECIMAL(10,2)
+)
+BEGIN
+    IF NOT EXISTS (SELECT id 
+                FROM orders 
+                WHERE id = p_order_id) THEN
+        SELECT 'order_not_exist';
+    ELSEIF EXISTS (SELECT id 
+                FROM order_details
+                WHERE order_id = p_order_id) THEN
+        SELECT 'order_details_exists';
+    ELSE
+        INSERT INTO order_details (id, order_id, product_id, quantity, total_price)
+        VALUES (p_id, p_order_id, p_product_id, p_quantity, p_total_price);
+        SELECT 'success';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure Create_payment_details
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Create_payment_details`(
+    IN p_id VARCHAR(36),
+    IN p_order_id VARCHAR(36),
+    IN p_amount DECIMAL(10,2)
+)
+BEGIN
+    IF EXISTS (SELECT id 
+                FROM payment_details
+                WHERE id = p_id) THEN
+        SELECT 'payment_exists';
+    ELSE
+        INSERT INTO payment_details (id, order_id, amount, status)
+        VALUES (p_id, p_order_id, p_amount, 'completed');
         SELECT 'success';
     END IF;
 END$$
