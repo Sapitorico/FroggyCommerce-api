@@ -30,7 +30,9 @@ class ModelAddress():
             cursor = db.cursor()
             address_id = str(uuid.uuid4())
             cursor.callproc("Add_address", (address_id, user_id,
-                            address.state, address.city, address.address))
+                            address.department, address.locality,
+                            address.street_address, address.number,
+                            address.type, address.additional_references,))
             for result in cursor.stored_results():
                 message = result.fetchone()[0]
             if message == 'not_exist':
@@ -65,9 +67,12 @@ class ModelAddress():
             for results in cursor.stored_results():
                 result = results.fetchall()
             addresses = [Address(id=address[0],
-                                 state=address[1],
-                                 city=address[2],
-                                 address=address[3]).to_dict() for address in result]
+                                 department=address[1],
+                                 locality=address[2],
+                                 street_address=address[3],
+                                 number=address[4],
+                                 type=address[5],
+                                 additional_references=address[6]).to_dict() for address in result]
             return jsonify({"success": True, "message": "Addresses recovered successfully", "addresses": addresses}), 200
         except Exception as e:
             return jsonify({"success": False, "Error": str(e)}), 500
@@ -97,9 +102,12 @@ class ModelAddress():
             if not address:
                 return jsonify({"success": False, "message": "Address not found"}), 404
             address = Address(id=address[0],
-                              state=address[1],
-                              city=address[2],
-                              address=address[3]).to_dict()
+                              department=address[1],
+                              locality=address[2],
+                              street_address=address[3],
+                              number=address[4],
+                              type=address[5],
+                              additional_references=address[6]).to_dict()
             return jsonify({"success": True, "message": "Addres recovered successfully", "address": address}), 200
         except Exception as e:
             return jsonify({"success": False, "Error": str(e)}), 500
@@ -125,8 +133,8 @@ class ModelAddress():
         """
         try:
             cursor = db.cursor()
-            cursor.callproc("Update_address", (id,
-                            address.state, address.city, address.address))
+            cursor.callproc("Update_address", (id, address.department, address.locality, address.street_address,
+                            address.number, address.type, address.additional_references,))
             for result in cursor.stored_results():
                 message = result.fetchone()[0]
             if message == 'not_exist':
@@ -185,19 +193,15 @@ class ModelAddress():
         if not data:
             return jsonify({"success": False, "message": "No data provided"}), 400
 
-        if "state" not in data:
-            return jsonify({"success": False, "message": "Field 'state' is required"}), 400
-        elif not isinstance(data['state'], str) or len(data['state']) == 0:
-            return jsonify({"success": False, "message": "Field 'state' must be a non-empty string"}), 400
+        required_fields = ['department', 'locality',
+                           'street_address', 'number', 'type', 'additional_references']
 
-        if "city" not in data:
-            return jsonify({"success": False, "message": "Field 'city' is required"}), 400
-        elif not isinstance(data['city'], str) or len(data['city']) == 0:
-            return jsonify({"success": False, "message": "Field 'city' must be a non-empty string"}), 400
-
-        if "address" not in data:
-            return jsonify({"success": False, "message": "Field 'address' is required"}), 400
-        elif not isinstance(data['address'], str) or len(data['address']) == 0:
-            return jsonify({"success": False, "message": "Field 'address' must be a non-empty string"}), 400
+        for field in required_fields:
+            if field not in data:
+                return jsonify({"success": False, "message": f"Field '{field}' is required"}), 400
+            elif field == 'type' and data[field] not in ['work', 'home']:
+                return jsonify({"success": False, "message": "Field 'type' must be either 'work' or 'home'"}), 400
+            elif field != 'additional_references' and (not isinstance(data[field], str) or len(data[field]) == 0):
+                return jsonify({"success": False, "message": f"Field '{field}' must be a non-empty string"}), 400
 
         return None

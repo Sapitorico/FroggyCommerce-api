@@ -49,9 +49,12 @@ def add_new_address(user_id):
         validation_error = ModelAddress.validate(data)
         if validation_error:
             return validation_error
-        address = Address(state=data['state'],
-                          city=data['city'],
-                          address=data['address'])
+        address = Address(department=data['department'],
+                          locality=data['locality'],
+                          street_address=data['street_address'],
+                          number=data['number'],
+                          type=data['type'],
+                          additional_references=data['additional_references'])
         response = ModelAddress.add_address(db.connection, user_id, address)
         return response
 
@@ -86,11 +89,15 @@ def update_address(user_id, id):
         validation_error = ModelAddress.validate(data)
         if validation_error:
             return validation_error
-        address = Address(state=data['state'],
-                          city=data['city'],
-                          address=data['address'])
+        address = Address(department=data['department'],
+                          locality=data['locality'],
+                          street_address=data['street_address'],
+                          number=data['number'],
+                          type=data['type'],
+                          additional_references=data['additional_references'])
         response = ModelAddress.update_address(db.connection, id, address)
         return response
+
 
 @address.route('/delete/<string:id>', methods=['DELETE'])
 @Security.verify_session

@@ -39,8 +39,7 @@ def register():
                     username=data.get('username'),
                     email=data.get('email'),
                     phone_number=data.get('phone_number'),
-                    password=User.hash_password(data.get('password')),
-                    user_type='customer')
+                    password=User.hash_password(data.get('password')))
         response = ModelUser.register(db.connection, user)
         return response
 

@@ -111,7 +111,7 @@ class PaymentServices():
                 "failure": f"http://localhost:5000/api/payment/failure",
                 "pending": f"http://localhost:5000/api/payment/pending"
             },
-            "notification_url": f"https://79f6-167-58-246-194.ngrok-free.app/api/payment/notification/{user_id}/{address_id}",
+            "notification_url": f"https://24fe-167-58-246-194.ngrok-free.app/api/payment/notification/{user_id}/{address_id}",
             "statement_descriptor": "E-commerce-sapardo",
         }
         return preference_data
