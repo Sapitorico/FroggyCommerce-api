@@ -40,9 +40,12 @@ def add_new_address(user_id):
 
     Parameters:
         user_id (str): The unique identifier for the user.
-        state (str): The state where the address is located.
-        city (str): The city where the address is located.
-        address (str): The street address.
+        department(str): The department where the address is located.
+        locality(str): The locality where the address is located.
+        street_address(str): The street address of the address.
+        number(str): The number of the address.
+        type(str): The type of the address.
+        additional_references(str): Additional references for the address.
     """
     if request.method == 'POST':
         data = request.json

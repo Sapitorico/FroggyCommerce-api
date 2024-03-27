@@ -1,4 +1,16 @@
 class OrderDetails():
+    """
+    The 'OrderDetails' class represents the details of an order.
+
+    Attributes:
+        id (str): The unique identifier of the order.
+        order_number (str): The order number associated with the order.
+        total_quantity (int): The total quantity of items in the order.
+        total_amount (float): The total amount of the order.
+
+    Methods:
+        to_dict(): Returns a dictionary representation of the order details.
+    """
 
     def __init__(self, **kwargs):
         self.id = kwargs.get('id')

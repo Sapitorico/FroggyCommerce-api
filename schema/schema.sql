@@ -663,6 +663,26 @@ END$$
 DELIMITER ;
 
 -- -----------------------------------------------------
+-- procedure Empty_cart
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Empty_cart`(
+	IN p_user_id VARCHAR(36)
+)
+BEGIN
+	IF NOT EXISTS (SELECT id FROM users WHERE id = p_user_id) THEN
+		SELECT 'not_exist';
+	ELSE
+		DELETE FROM cart WHERE customer_id = p_user_id;
+        SELECT 'success';
+	END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
 -- procedure Add_address
 -- -----------------------------------------------------
 
@@ -773,35 +793,6 @@ END$$
 DELIMITER ;
 
 -- -----------------------------------------------------
--- procedure Create_order
--- -----------------------------------------------------
-
-DELIMITER $$
-USE `ecommerce_db`$$
-CREATE DEFINER=`root`@`localhost` PROCEDURE `Create_order`(
-    IN p_id VARCHAR(36),
-    IN p_customer_id VARCHAR(36),
-    IN p_address_id VARCHAR(36),
-    IN p_payment_id VARCHAR(36),
-    IN p_details_id VARCHAR(36),
-    IN p_order_number VARCHAR(50),
-    IN p_payment_status ENUM('pending', 'paid', 'rejected')
-)
-BEGIN
-    IF EXISTS (SELECT id 
-                FROM orders 
-                WHERE order_number = p_order_number) THEN
-        SELECT 'order_exists';
-    ELSE
-        INSERT INTO orders (id, customer_id, address_id, payment_id, details_id, order_number, payment_status)
-        VALUES (p_id, p_customer_id, p_address_id, p_payment_id, p_details_id, p_order_number, payment_status);
-        SELECT 'success';
-    END IF;
-END$$
-
-DELIMITER ;
-
--- -----------------------------------------------------
 -- procedure Create_order_details
 -- -----------------------------------------------------
 
@@ -828,6 +819,33 @@ END$$
 DELIMITER ;
 
 -- -----------------------------------------------------
+-- procedure Create_order_item
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Create_order_item`(
+    IN p_id VARCHAR(36),
+    IN p_order_details_id VARCHAR(36),
+    IN p_product_id VARCHAR(36),
+    IN p_quantity INT,
+    IN p_unit_price DECIMAL(10,2)
+)
+BEGIN
+    IF EXISTS (SELECT id 
+                FROM order_items
+                WHERE product_id = p_product_id) THEN
+        SELECT 'item_exists';
+    ELSE
+        INSERT INTO order_items (id, order_details_id, product_id, quantity, unit_price, total_price)
+        VALUES (p_id, p_order_details_id, p_product_id, p_quantity, p_unit_price, p_quantity * p_unit_price);
+        SELECT 'success';
+    END IF;
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
 -- procedure Create_payment_details
 -- -----------------------------------------------------
 
@@ -841,6 +859,29 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `Create_payment_details`(
 BEGIN
     INSERT INTO payment_details (id, amount, status)
     VALUES (p_id, p_amount, status);
+    SELECT 'success';
+END$$
+
+DELIMITER ;
+
+-- -----------------------------------------------------
+-- procedure Create_order
+-- -----------------------------------------------------
+
+DELIMITER $$
+USE `ecommerce_db`$$
+CREATE DEFINER=`root`@`localhost` PROCEDURE `Create_order`(
+    IN p_id VARCHAR(36),
+    IN p_customer_id VARCHAR(36),
+    IN p_address_id VARCHAR(36),
+    IN p_payment_id VARCHAR(36),
+    IN p_details_id VARCHAR(36),
+    IN p_order_number VARCHAR(50),
+    IN p_payment_status ENUM('pending', 'paid', 'rejected')
+)
+BEGIN
+    INSERT INTO orders (id, customer_id, address_id, payment_id, details_id, order_number, payment_status)
+    VALUES (p_id, p_customer_id, p_address_id, p_payment_id, p_details_id, p_order_number, payment_status);
     SELECT 'success';
 END$$
 

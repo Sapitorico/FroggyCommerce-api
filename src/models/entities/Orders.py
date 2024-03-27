@@ -1,4 +1,19 @@
 class Order():
+    """
+    The 'Order' class represents an order in a system. It contains information about the order, such as the order ID, customer ID, address ID, payment ID, details ID, status, and payment status.
+
+    Attributes:
+        id (str): The ID of the order.
+        customer_id (str): The ID of the customer who placed the order.
+        address_id (str): The ID of the address associated with the order.
+        payment_id (str): The ID of the payment method used for the order.
+        details_id (str): The ID of the order details.
+        status (str): The status of the order.
+        payment_status (str): The payment status of the order.
+
+    Methods:
+        to_dict(): Converts the order object into a dictionary.
+    """
 
     def __init__(self, **kwargs):
         self.id = kwargs.get('id')

@@ -59,3 +59,17 @@ def delete(user_id, id):
     if request.method == 'DELETE':
         response = ModelCart.remove_to_cart(db.connection, user_id, id)
         return response
+
+@cart.route('/empty', methods=['DELETE'])
+@Security.verify_session
+def empty_cart(user_id):
+    """
+    Removes a product from the users cart
+
+    Args:
+        user_id (str): ID of the user.
+        id (str): ID of the product to be removed from the cart
+    """
+    if request.method == 'DELETE':
+        response = ModelCart.empty_cart(db.connection, user_id)
+        return response
