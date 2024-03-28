@@ -107,10 +107,12 @@ class ModelUser():
                 users = result.fetchall()
             users = [User(id=user[0],
                           full_name=user[1],
-                          email=user[2],
-                          user_type=user[3],
-                          created_at=user[4],
-                          updated_at=user[5]).to_dict() for user in users]
+                          username=user[2],
+                          email=user[3],
+                          phone_number=user[4],
+                          user_type=user[5],
+                          created_at=user[6],
+                          updated_at=user[7]).to_dict() for user in users]
             return jsonify({"success": True, "message": "Users fetched successfully", "users": users}), 200
         except Exception as e:
             return jsonify({"success": False, "Error": str(e)}), 500

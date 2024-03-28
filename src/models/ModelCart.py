@@ -85,6 +85,22 @@ class ModelCart():
         finally:
             cursor.close()
 
+    @classmethod
+    def empty_cart(cls, db, user_id):
+        cursor = db.cursor()
+        try:
+            cursor.callproc("Empty_cart", (user_id,))
+            for result in cursor.stored_results():
+                message = result.fetchone()[0]
+            if message == 'not_exist':
+                return jsonify({"success": False, "message": "User not found"}), 404
+            db.commit()
+            return jsonify({"success": True, "message": "Cart successfully emptied"}), 200
+        except Exception as e:
+            return jsonify({"success": True, "error": str(e)})
+        finally:
+            cursor.close()
+
     @staticmethod
     def validate(data):
         """

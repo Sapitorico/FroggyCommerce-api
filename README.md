@@ -14,7 +14,7 @@ API de backend diseñada para gestionar un sistema de comercio electrónico. Pro
 
 ## Descripción
 
-Es una API de backend que se utiliza en sistemas de comercio electrónico. proporciona funcionalidades que permiten a los administradores administrar de manera eficiente productos, categorías, precios, inventario y usuarios. Además, permite a los usuarios interactuar con la plataforma al agregar y quitar artículos de su carrito de compras de forma fácil y segura.
+Es una API de backend que se utiliza en sistemas de comercio electrónico. Proporciona funcionalidades que permiten a los administradores administrar de manera eficiente productos, categorías, precios, inventario y usuarios. Permite a los usuarios interactuar con la plataforma al agregar y quitar artículos de su carrito de compras de forma fácil y segura, e incluye la funcionalidad para realizar pagos de los productos en el carrito de compras.
 
 ## Características
 
@@ -55,10 +55,12 @@ Los clientes tienen la capacidad de realizar las siguientes acciones:
   
 - **Perfil de Usuario:**
   - Actualizar su propio perfil, incluyendo información personal, direcciones y detalles de contacto.
+  - Administrar sus direcciones de envío y facturación.
 
 - **Carrito de Compras:**
   - Agregar, eliminar y actualizar productos en el carrito, incluyendo la cantidad deseada.
   - Ver el contenido actualizado de su carrito antes de proceder con la compra.
+  - Realizar el pago de los productos en su carrito.
 
 ### Login y Registro
 
@@ -94,8 +96,13 @@ Antes de comenzar, asegúrate de tener instalados los siguientes requisitos en t
 Asegúrate de crear un archivo `.env` en el directorio raíz del proyecto con la siguiente configuración:
 
 ```dotenv
+# Flask configuration
+FLASK_APP=main.py
+
+# API config
+BASE_URL=          # URL base de la API
+
 # MySQL configuration
-# Configuración para la conexión a la base de datos MySQL
 MYSQL_HOST=        # Dirección del host de la base de datos MySQL
 MYSQL_PORT=        # Puerto de la base de datos MySQL
 MYSQL_USER=        # Usuario de la base de datos MySQL
@@ -103,8 +110,10 @@ MYSQL_PASSWORD=    # Contraseña del usuario de la base de datos MySQL
 MYSQL_DB=          # Nombre de la base de datos MySQL
 
 # JWT Secret
-# Clave secreta utilizada para firmar y verificar tokens JWT (JSON Web Tokens)
 JWT_SECRET=        # Clave secreta para tokens JWT
+
+# Mercado pago
+MP_ACCESS_TOKEN=   # Token de acceso de Mercado Pago
 ```
 
 ## Instalación
@@ -159,11 +168,11 @@ Para ejecutar el proyecto localmente, sigue estos pasos:
 
 ## Uso
 
-Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes rutas. La identificación del usuario se realiza mediante el token de sesión, que debe ser proporcionado en los encabezados de la solicitud.
+Para utilizar la API, utiliza la URL base `/api` seguida de las siguientes rutas. La identificación del usuario se realiza mediante el token de sesión, que debe ser proporcionado en los encabezados de la solicitud.
 
 - **Registro de Usuario**
   - **Método HTTP:** POST
-  - **Endpoint:** `auth/register`
+  - **Endpoint:** `/auth/register`
   - **Descripción:** Este endpoint permite que un usuario se registre.
   - **Ejemplo de Cuerpo de la Solicitud (JSON):**
 
@@ -179,7 +188,7 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
 
 - **Inicio de Sesión de Usuario**
   - **Método HTTP:** POST
-  - **Endpoint:** `auth/login`
+  - **Endpoint:** `/auth/login`
   - **Descripción:** Este endpoint permite que un usuario inicie sesión
   - **Ejemplo de Cuerpo de la Solicitud (JSON):**
 
@@ -190,14 +199,19 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
      }
      ```
 
+- **Ver Perfil del Usuario (requiere token de sesión admin)**
+  - **Método HTTP:** GET
+  - **Endpoint:** `/users`
+  - **Descripción:** Este endpoint permite ver todos los customers.
+
 - **Ver Perfil del Usuario (requiere token de sesión)**
   - **Método HTTP:** GET
-  - **Endpoint:** `users/profile`
+  - **Endpoint:** `/users/profile`
   - **Descripción:** Este endpoint permite ver el perfil del usuario actual.
 
 - **Actualizar Información del Usuario (requiere token de sesión)**
   - **Método HTTP:** PUT
-  - **Endpoint:** `users/update`
+  - **Endpoint:** `/users/update`
   - **Descripción:** Este endpoint permite actualizar la información del usuario actual.
   - **Ejemplo de Cuerpo de la Solicitud (JSON):**
 
@@ -210,6 +224,11 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
        "password": "nueva_contraseña123"
      }
      ```
+
+- **Eliminar Usuario (requiere token de sesión)**
+  - **Método HTTP:** DELETE
+  - **Endpoint:** `/users/delete`
+  - **Descripción:** Este endpoint permite eliminar la cuenta del usuario actual.
 
 - **Agregar Dirección al Usuario (requiere token de sesión)**
   - **Método HTTP:** POST
@@ -243,9 +262,12 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
 
     ```json
     {
-      "state": "Nuevo state",
-      "city": "Nuava city",
-      "address": "Nueva address"
+      "department": "Department",
+      "locality": "Locality",
+      "street_address": "street address",
+      "number": "number",
+      "type": "home", //home or work
+      "additional_references": "additional references"
     }
     ```
 
@@ -254,14 +276,9 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
   - **Endpoint:** `/address/delete/{address_id}`
   - **Descripción:** Este endpoint permite eliminar una direccion asociada al perfil del usuario actual.
 
-- **Eliminar Usuario (requiere token de sesión)**
-  - **Método HTTP:** DELETE
-  - **Endpoint:** `users/delete`
-  - **Descripción:** Este endpoint permite eliminar la cuenta del usuario actual.
-
-- **Crear Producto**
+- **Crear Producto (requiere token de sesión admin)**
   - **Método HTTP:** POST
-  - **Endpoint:** `products/create`
+  - **Endpoint:** `/products/create`
   - **Descripción:** Este endpoint permite crear un nuevo producto.
   - **Ejemplo de Cuerpo de la Solicitud (JSON):**
 
@@ -277,17 +294,17 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
 
 - **Ver Todos los Productos**
   - **Método HTTP:** GET
-  - **Endpoint:** `products`
+  - **Endpoint:** `/products`
   - **Descripción:** Este endpoint permite ver todos los productos disponibles.
 
 - **Ver Producto Específico**
   - **Método HTTP:** GET
-  - **Endpoint:** `products/{product_id}`
+  - **Endpoint:** `/products/{product_id}`
   - **Descripción:** Este endpoint permite ver un producto específico proporcionando su ID.
 
-- **Actualizar Producto**
+- **Actualizar Producto (requiere token de sesión admin)**
   - **Método HTTP:** PUT
-  - **Endpoint:** `products/update/{product_id}`
+  - **Endpoint:** `/products/update/{product_id}`
   - **Descripción:** Este endpoint permite actualizar un producto específico proporcionando su ID y los datos actualizados.
   - **Ejemplo de Cuerpo de la Solicitud (JSON):**
 
@@ -301,14 +318,14 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
     }
     ```
 
-- **Eliminar Producto**
+- **Eliminar Producto (requiere token de sesión admin)**
   - **Método HTTP:** DELETE
-  - **Endpoint:** `products/delete/{id}`
+  - **Endpoint:** `/products/delete/{id}`
   - **Descripción:** Este endpoint permite eliminar un producto específico proporcionando su ID.
 
-- **Agregar Producto al Carrito**
+- **Agregar Producto al Carrito (requiere token de sesión)**
   - **Método HTTP:** POST
-  - **Endpoint:** `cart/add`
+  - **Endpoint:** `/cart/add`
   - **Descripción:** Este endpoint permite agregar un producto al carrito
   - **Ejemplo de Cuerpo de la Solicitud (JSON):**
 
@@ -319,15 +336,20 @@ Para utilizar la API, utiliza la URL base `/api/` seguida de las siguientes ruta
     }
     ```
 
-- **Ver Carrito**
+- **Ver Carrito (requiere token de sesión)**
   - **Método HTTP:** GET
-  - **Endpoint:** `cart`
+  - **Endpoint:** `/cart`
   - **Descripción:** Este endpoint permite ver el contenido actual del carrito.
 
-- **Eliminar Producto del Carrito**
+- **Eliminar Producto del Carrito (requiere token de sesión)**
   - **Método HTTP:** DELETE
-  - **Endpoint:** `cart/remove/{product_id}`
+  - **Endpoint:** `/cart/remove/{product_id}`
   - **Descripción:** Este endpoint permite eliminar una unidad del producto especificado del carrito.
+
+- **Generar link de pago (requiere token de sesión)**
+  - **Método HTTP:** GET
+  - **Endpoint:** `/payment/generate/{address_id}`
+  - **Descripción:** Este endpoint permite generar un link de pago. Para usar este endpoint, el usuario debe tener un token de sesión válido y debe haber productos en el carrito.
 
 ## Tecnologías Utilizadas
 

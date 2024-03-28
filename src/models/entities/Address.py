@@ -18,16 +18,24 @@ class Address():
     def __init__(self, **kwargs):
         self.id = kwargs.get('id')
         self.user_id = kwargs.get('user_id')
-        self.state = kwargs.get('state')
-        self.city = kwargs.get('city')
-        self.address = kwargs.get('address')
+        self.department = kwargs.get('department')
+        self.locality = kwargs.get('locality')
+        self.street_address = kwargs.get('street_address')
+        self.number = kwargs.get('number')
+        self.type = kwargs.get('type')
+        self.additional_references = kwargs.get('additional_references')
+        self.created_at = kwargs.get('created_at') 
+        
 
     def to_dict(self):
         data = {
             "id": self.id,
             "user_id": self.user_id,
-            "state": self.state,
-            "city": self.city,
-            "address": self.address
+            "department": self.department,
+            "locality": self.locality,
+            "street_address": self.street_address,
+            "number": self.number,
+            "type": self.type,
+            "additional_references": self.additional_references
         }
         return {key: value for key, value in data.items() if value is not None}

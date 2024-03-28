@@ -40,18 +40,24 @@ def add_new_address(user_id):
 
     Parameters:
         user_id (str): The unique identifier for the user.
-        state (str): The state where the address is located.
-        city (str): The city where the address is located.
-        address (str): The street address.
+        department(str): The department where the address is located.
+        locality(str): The locality where the address is located.
+        street_address(str): The street address of the address.
+        number(str): The number of the address.
+        type(str): The type of the address.
+        additional_references(str): Additional references for the address.
     """
     if request.method == 'POST':
         data = request.json
         validation_error = ModelAddress.validate(data)
         if validation_error:
             return validation_error
-        address = Address(state=data['state'],
-                          city=data['city'],
-                          address=data['address'])
+        address = Address(department=data['department'],
+                          locality=data['locality'],
+                          street_address=data['street_address'],
+                          number=data['number'],
+                          type=data['type'],
+                          additional_references=data['additional_references'])
         response = ModelAddress.add_address(db.connection, user_id, address)
         return response
 
@@ -86,11 +92,15 @@ def update_address(user_id, id):
         validation_error = ModelAddress.validate(data)
         if validation_error:
             return validation_error
-        address = Address(state=data['state'],
-                          city=data['city'],
-                          address=data['address'])
+        address = Address(department=data['department'],
+                          locality=data['locality'],
+                          street_address=data['street_address'],
+                          number=data['number'],
+                          type=data['type'],
+                          additional_references=data['additional_references'])
         response = ModelAddress.update_address(db.connection, id, address)
         return response
+
 
 @address.route('/delete/<string:id>', methods=['DELETE'])
 @Security.verify_session

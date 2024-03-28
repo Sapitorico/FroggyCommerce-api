@@ -27,9 +27,12 @@ class TestModelAddress(BaseTestContext):
         return response[0].json['user']['id']
 
     def add_address(self, user_id):
-        address = Address(state="state",
-                          city="city",
-                          address="address")
+        address = Address(department="departament",
+                          locality="locality",
+                          street_address="street_address",
+                          number="number",
+                          type="home",
+                          additional_references="additional_references")
         ModelAddress.add_address(self.connection, user_id, address)
 
     def test_validate(self):
@@ -39,36 +42,43 @@ class TestModelAddress(BaseTestContext):
         self.assertEqual(
             response[0].json, {"success": False, "message": "No data provided"})
 
-        data = {"state": "state"}
+        data = {"department": "department"}
         response = ModelAddress.validate(data)
         self.assertEqual(response[1], 400)
         self.assertEqual(
-            response[0].json, {"success": False, "message": "Field 'city' is required"})
+            response[0].json, {"success": False, "message": "Field 'locality' is required"})
 
-        data = {"state": "state", "city": "city"}
+        data = {"department": "department", "locality": "locality"}
         response = ModelAddress.validate(data)
         self.assertEqual(response[1], 400)
         self.assertEqual(
-            response[0].json, {"success": False, "message": "Field 'address' is required"})
+            response[0].json, {"success": False, "message": "Field 'street_address' is required"})
 
-        data = {"state": "state", "city": "city", "address": "address"}
+        data = {"department": "department", "locality": "locality",
+                "street_address": "street_address", "number": "number", "type": "home", "additional_references": "additional_references"}
         response = ModelAddress.validate(data)
         self.assertEqual(response, None)
 
     def test_add_address(self):
         user_id = self.register_user()
-        address = Address(state="state",
-                          city="city",
-                          address="address")
+        address = Address(department="department",
+                          locality="locality",
+                          street_address="street_address",
+                          number="number",
+                          type="home",
+                          additional_references="additional_references")
         response = ModelAddress.add_address(self.connection, user_id, address)
         self.assertEqual(response[1], 201)
         self.assertEqual(response[0].json, {
                          "success": True, "message": "Address added successfully"})
 
     def test_add_address_invalid_user(self):
-        address = Address(state="state",
-                          city="city",
-                          address="address")
+        address = Address(department="department",
+                          locality="locality",
+                          street_address="street_address",
+                          number="number",
+                          type="home",
+                          additional_references="additional_references")
         response = ModelAddress.add_address(self.connection, 1, address)
         self.assertEqual(response[1], 404)
         self.assertEqual(response[0].json, {
@@ -95,9 +105,12 @@ class TestModelAddress(BaseTestContext):
         self.add_address(user_id)
         response = ModelAddress.list_addresses(self.connection, user_id)
         address_id = response[0].json['addresses'][0]['id']
-        address = Address(state="state",
-                          city="city",
-                          address="address")
+        address = Address(department="department",
+                          locality="locality",
+                          street_address="street_address",
+                          number="number",
+                          type="home",
+                          additional_references="additional_references")
         response = ModelAddress.update_address(
             self.connection, address_id, address)
         self.assertEqual(response[1], 200)
