@@ -18,9 +18,19 @@ SHELL ["/bin/bash", "-c"]
 RUN source sapovenv/bin/activate && \
     pip install -r requirements.txt
 
+# Establece las variables de entorno utilizando los argumentos de construcción
+ARG MYSQL_DB
+ARG MYSQL_HOST
+ARG MYSQL_USER
+ARG MYSQL_PASSWORD
+
+ENV MYSQL_DB=$MYSQL_DB
+ENV MYSQL_HOST=$MYSQL_HOST
+ENV MYSQL_USER=$MYSQL_USER
+ENV MYSQL_PASSWORD=$MYSQL_PASSWORD
+
 # Inicializa el servicio MySQL y ejecuta el script SQL
-RUN source .env && \
-    MYSQL_DB=${MYSQL_DB} && \
+RUN MYSQL_DB=${MYSQL_DB} && \
     MYSQL_HOST=${MYSQL_HOST} && \
     MYSQL_USER=${MYSQL_USER} && \
     MYSQL_PASSWORD=${MYSQL_PASSWORD} && \
