@@ -2,9 +2,10 @@ from flask import jsonify
 from src import init_app
 from dotenv import load_dotenv
 from config import config
+import os
 
 # Initialize Flask application
-app = init_app(config['development'])
+app = init_app(config['production'])
 
 
 @app.route('/', methods=['GET'])
@@ -29,4 +30,4 @@ def unsupported_media_type(error):
 
 if __name__ == '__main__':
     load_dotenv()
-    app.run()
+    app.run(debug=True, port=os.getenv("PORT", default=5000))
