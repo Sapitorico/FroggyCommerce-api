@@ -131,7 +131,11 @@ MP_ACCESS_TOKEN=   # Token de acceso de Mercado Pago
 2. Una vez que la imagen se haya construido correctamente, puedes ejecutar el contenedor Docker utilizando el siguiente comando:
 
     ```bash
-    docker run -d -p 8000:8000 ecommerce-app
+    docker build --build-arg MYSQL_DB=$MYSQL_DB /
+              --build-arg MYSQL_HOST=$MYSQL_HOST /
+              --build-arg MYSQL_USER=$MYSQL_USER /
+              --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD /
+              -t ecommerce_app .
     ```
 
 ### Ejecución Local
