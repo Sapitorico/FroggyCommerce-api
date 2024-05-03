@@ -135,7 +135,7 @@ MP_ACCESS_TOKEN=   # Token de acceso de Mercado Pago
               --build-arg MYSQL_HOST=$MYSQL_HOST /
               --build-arg MYSQL_USER=$MYSQL_USER /
               --build-arg MYSQL_PASSWORD=$MYSQL_PASSWORD /
-              -t ecommerce_app .
+              .
     ```
 
 ### Ejecución Local
