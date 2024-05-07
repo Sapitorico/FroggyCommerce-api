@@ -1,56 +1,91 @@
-from flask import jsonify
 import os
+from flask import jsonify
 
-# Mercado Pago sdk
-from src.utils.MercadoPagoSDK import MP_SDK
+# Models
+from src.models.OrderModel import OrderModel
+from src.models.AddressModel import AddressModel
+from src.models.CartModel import CartModel
+from src.models.UsersModel import UsersModel
 
+# Services
+from src.services.DataBaseService import DataBaseService
+from src.services.MercadoPagoService import MP_SDK
 
-class PaymentServices():
-    """
-    This class provides methods for generating payment preferences.
-    It interacts with the Mercado Pago SDK to perform these operations.
-    """
+conn = DataBaseService()
+
+class PaymentController():
 
     @classmethod
-    def generate_preference(cls, db, user_id, address_id):
+    def generate_preference(cls, user_id, address_id):
         """
-        Generates a payment preference for a user.
+        Generates a payment preference for the given user and address.
 
-        This method interacts with the Mercado Pago SDK to generate a payment preference based on the user's cart, user ID, and address ID. It retrieves the cart items from the database, converts them into the required format, and creates a preference using the Mercado Pago SDK. The preference is then returned as a JSON response.
-
-        Parameters:
-            db (database connection): The database connection object.
+        Args:
             user_id (str): The ID of the user.
             address_id (str): The ID of the address.
 
         Returns:
-            JSON response: A JSON response containing the success status, message, and payment link.
+            tuple: A tuple containing the JSON response and the HTTP status code.
+                The JSON response contains the success status, a message, and the payment link.
+                The HTTP status code indicates the success or failure of the payment initiation.
         """
+        address = AddressModel.get_by_id(address_id)
+        if not address:
+            return jsonify({"success": False, "message": "Address not found"}), 404
+        cart_result = CartModel.get(user_id)
+        if not cart_result:
+            return jsonify({"success": False, "message": "Cart is empty"}), 404
+        cart = []
+        for item in cart_result:
+            cart.append({
+                "id": item[0],
+                "title": item[1],
+                "currency_id": "UYU",
+                "unit_price": float(item[2]),
+                "quantity": item[3],
+            })
         try:
-            cursor = db.cursor()
-            cursor.callproc("Get_cart", (user_id,))
-            for results in cursor.stored_results():
-                result = results.fetchall()
-            if not result:
-                return jsonify({"success": False, "message": "The cart is empty"}), 400
-            cart = []
-            for item in result:
-                cart.append({
-                    "id": item[0],
-                    "title": item[1],
-                    "currency_id": "UYU",
-                    "unit_price": float(item[2]),
-                    "quantity": item[3],
-                })
             preference_data = cls.generate_preference_data(
                 cart, user_id, address_id)
             preference_response = MP_SDK().sdk.preference().create(preference_data)
             preference = preference_response["response"]['init_point']
             return jsonify({"success": True, "message": "Payment initiated successfully", "payment_link": preference}), 200
         except Exception as e:
-            return jsonify({"success": False, "error": str(e)}), 500
-        finally:
-            cursor.close()
+            print(e)
+            return jsonify({"success": False, "message": "Error generating payment preference"}), 500
+
+    @classmethod
+    def generate_order(cls, user_id, address_id, topic, payment_id):
+        """
+        Generates an order for a user based on the provided parameters.
+
+        Args:
+            user_id (str): The ID of the user placing the order.
+            address_id (str): The ID of the address for the order.
+            topic (str): The topic of the payment.
+            payment_id (str): The ID of the payment.
+
+        Returns:
+            tuple: A tuple containing the JSON response and the HTTP status code.
+                The JSON response contains a success flag and a message.
+                The HTTP status code indicates the success or failure of the operation.
+        """
+        user = UsersModel.get_by_id(user_id)
+        if not user:
+            return jsonify({"success": False, "message": "User not found"}), 404
+        address = AddressModel.get_by_id(address_id)
+        if not address:
+            return jsonify({"success": False, "message": "Address not found"}), 404
+        merchant_order = cls.verify_payment(topic, payment_id)
+        if merchant_order:
+            total_quantity = sum(item['quantity']
+                                    for item in merchant_order['items'])
+            order = OrderModel(customer_id=user_id, address_id=address_id, order_number=merchant_order['id'],
+                                total_quantity=total_quantity, total_amount=merchant_order['total_amount'])
+            response = order.create(merchant_order)
+            if response:
+                CartModel.empty(user_id)
+        return jsonify({"success": True, "message": "Order created successfully"}), 200
 
     @classmethod
     def verify_payment(cls, topic, payment_id):
@@ -95,49 +130,6 @@ class PaymentServices():
                 print("Aún no ha pagado. No libere su artículo.")
 
         return merchant_order
-
-    @classmethod
-    def verify_user_by_id(cls, db, user_id):
-        """
-        Verifies the existence of a user based on the user ID.
-
-        Parameters:
-            db (database connection): The database connection object.
-            user_id (str): The ID of the user.
-        """
-        try:
-            cursor = db.cursor()
-            cursor.callproc("User_by_id", (user_id,))
-            for result in cursor.stored_results():
-                user = result.fetchone()
-            if not user:
-                return jsonify({"success": False, "message": "User not found"}), 404
-            cursor.close()
-            return None
-        except Exception as e:
-            return jsonify({"success": False, "Error": str(e)}), 500
-
-    @classmethod
-    def verify_address(cls, db, address_id):
-        """
-        Verifies the existence of an address based on the address ID.
-
-        Parameters:
-            db (database connection): The database connection object.
-            address_id (str): The ID of the address.
-        """
-        try:
-            cursor = db.cursor()
-            cursor.callproc("Get_address", (address_id,))
-            for result in cursor.stored_results():
-                address = result.fetchone()
-            if not address:
-                return jsonify({"success": False, "message": "Address not found"}), 404
-            return None
-        except Exception as e:
-            return jsonify({"success": False, "error": str(e)}), 500
-        finally:
-            cursor.close()
 
     @staticmethod
     def generate_preference_data(cart, user_id, address_id):

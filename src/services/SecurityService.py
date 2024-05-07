@@ -4,13 +4,28 @@ import pytz
 from os import getenv
 from datetime import datetime, timedelta
 from flask import jsonify, request
+from bcrypt import checkpw, gensalt, hashpw
 
 
-class Security():
+class SecurityService():
     # Get the secret key from environment variables
     _secret = getenv('JWT_SECRET')
-    _algorithm = 'HS256'  # Encryption algorithm used
+    _algorithm = getenv('ALGORITHM')
     _tz = pytz.timezone('America/Montevideo')
+
+    @staticmethod
+    def hash_password(password):
+        """
+        Hashes the given password using bcrypt algorithm.
+        """
+        return hashpw(password.encode('utf-8'), gensalt()).decode('utf-8')
+
+    @staticmethod
+    def check_password(hashed_password, password):
+        """
+        Checks if the given password matches the hashed password.
+        """
+        return checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
     @classmethod
     def generate_token(cls, user):
@@ -22,8 +37,6 @@ class Security():
         """
         payload = {
             "iat": datetime.now(tz=cls._tz),  # Token issuance date and time
-
-            # Token expiration date (1 day)
             "exp": datetime.now(tz=cls._tz) + timedelta(days=1),
             "id": user.id,
             "full_name": user.full_name,

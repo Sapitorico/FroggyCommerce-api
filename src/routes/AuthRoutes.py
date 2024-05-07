@@ -1,22 +1,9 @@
 from flask import Blueprint, request
 
-# Models:
-from src.models.ModelUser import ModelUser
-
-# Entities
-from src.models.entities.Users import User
-
-# Database
-from src.database.db_conection import DBConnection
-
-# Database connection:
-db = DBConnection()
-
+# Controllers
+from src.controllers.UsersController import UsersController
 
 auth = Blueprint('auth', __name__)
-"""
-This module handles authentication routes.
-"""
 
 
 @auth.route('/register', methods=['POST'])
@@ -24,43 +11,31 @@ def register():
     """
     Register a new user.
 
-    This function handles the registration of a new user by receiving a POST request with user data in JSON format.
-    It validates the data, creates a new User object, and registers it using the ModelUser class.
+    This function handles the registration of a new user by receiving a POST request with JSON data.
+    The JSON data should contain the necessary information for user registration.
 
     Returns:
-        dict: A dictionary containing the response from the registration process.This could be a success message or an error message, both in JSON format.
+        The response from the AuthController.register() function.
     """
     if request.method == 'POST':
         data = request.json
-        validation_error = ModelUser.validate(data)
-        if validation_error:
-            return validation_error
-        user = User(full_name=data.get('full_name'),
-                    username=data.get('username'),
-                    email=data.get('email'),
-                    phone_number=data.get('phone_number'),
-                    password=User.hash_password(data.get('password')))
-        response = ModelUser.register(db.connection, user)
+        response = UsersController.register(data)
         return response
 
 
 @auth.route('/login', methods=['POST'])
 def login():
     """
-    Log in an existing user.
+    Handle the login request.
 
-    This function handles the login of an existing user by receiving a POST request with user data in JSON format.
-    It validates the data, creates a new User object, and logs it in using the ModelUser class.
+    This function receives a POST request with JSON data containing the user's credentials.
+    It calls the `login` method of the `AuthController` class to authenticate the user.
+    The response from the `login` method is returned as the API response.
 
     Returns:
-        dict: A dictionary containing the response from the login process. This could be a success message or an error message, both in JSON format.
+        The API response as returned by the `login` method of the `AuthController` class.
     """
     if request.method == 'POST':
         data = request.json
-        validation_error = ModelUser.validate_login(data)
-        if validation_error:
-            return validation_error
-        user = User(email=data.get('email'),
-                    password=data.get('password'))
-        response = ModelUser.login(db.connection, user)
+        response = UsersController.login(data)
         return response

@@ -1,0 +1,834 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "FroggyCommerce",
+    "description": "Backend API used in ecommerce systems.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000/api"
+    }
+  ],
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "Endpoints related to user authentication."
+    },
+    {
+      "name": "Users",
+      "description": "Operations related to user management."
+    },
+    {
+      "name": "Products",
+      "description": "Operations related to product management in ecommerce."
+    },
+    {
+      "name": "Cart",
+      "description": "Operations related to user shopping carts."
+    },
+    {
+      "name": "Address",
+      "description": "Operations related to shipping addresses management."
+    },
+    {
+      "name": "Payment",
+      "description": "Operations related to payments."
+    }
+  ],
+  "paths": {
+    "/auth/register": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "Register new users",
+        "description": "This endpoint allows users to register in FroggyCommerce.",
+        "operationId": "registerUser",
+        "requestBody": {
+          "description": "Data required for registering a new user.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Register"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "User registered successfully."
+          },
+          "400": {
+            "description": "Error in the request due to incorrect or missing data."
+          }
+        }
+      }
+    },
+    "/auth/login": {
+      "post": {
+        "tags": [
+          "Authentication"
+        ],
+        "summary": "User login",
+        "description": "This endpoint allows users to login to FroggyCommerce.",
+        "operationId": "userLogin",
+        "requestBody": {
+          "description": "Data required for user login.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Login"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Login successful."
+          },
+          "400": {
+            "description": "Error in the request due to incorrect or missing data."
+          }
+        }
+      }
+    },
+    "/users": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get all users",
+        "description": "This endpoint allows an admin user to fetch all users.",
+        "operationId": "getAllUsers",
+        "responses": {
+          "200": {
+            "description": "List of users fetched successfully."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/profile": {
+      "get": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Get user profile",
+        "description": "This endpoint allows any authenticated user to fetch their own profile.",
+        "operationId": "getUserProfile",
+        "responses": {
+          "200": {
+            "description": "User profile fetched successfully."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/update": {
+      "post": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Update user profile",
+        "description": "This endpoint allows any authenticated user to update their own profile.",
+        "operationId": "updateUserProfile",
+        "requestBody": {
+          "description": "Data required for updating the user profile.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Register"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "User profile updated successfully."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/users/delete": {
+      "delete": {
+        "tags": [
+          "Users"
+        ],
+        "summary": "Delete user",
+        "description": "This endpoint allows any authenticated user to delete their own account.",
+        "operationId": "deleteUser",
+        "responses": {
+          "200": {
+            "description": "User account deleted successfully."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/products/create": {
+      "post": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Create product",
+        "description": "This endpoint allows an admin user to create a new product.",
+        "operationId": "createProduct",
+        "requestBody": {
+          "description": "Data required for creating a new product.",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Product created successfully."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/products": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get all products",
+        "description": "This endpoint allows an admin user to fetch all products.",
+        "operationId": "getAllProducts",
+        "responses": {
+          "200": {
+            "description": "List of products fetched successfully."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/products/{id}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Get product by ID",
+        "description": "This endpoint allows an admin user to fetch a specific product by its ID.",
+        "operationId": "getProductById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "ID of the product to retrieve.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product fetched successfully."
+          },
+          "404": {
+            "description": "Product not found."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/products/update/{id}": {
+      "put": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Update product by ID",
+        "description": "This endpoint allows an admin user to update a specific product by its ID.",
+        "operationId": "updateProductById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "ID of the product to update.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Data required for updating the product.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Product"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product updated successfully."
+          },
+          "404": {
+            "description": "Product not found."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/products/delete/{id}": {
+      "delete": {
+        "tags": [
+          "Products"
+        ],
+        "summary": "Delete product by ID",
+        "description": "This endpoint allows an admin user to delete a specific product by its ID.",
+        "operationId": "deleteProductById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "ID of the product to delete.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product deleted successfully."
+          },
+          "404": {
+            "description": "Product not found."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/cart/add": {
+      "post": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Add product to cart",
+        "description": "This endpoint allows a user to add a product to their shopping cart.",
+        "operationId": "addProductToCart",
+        "requestBody": {
+          "description": "Data required to add a product to the cart.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CartAdd"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Product added to cart successfully."
+          },
+          "404": {
+            "description": "Product not found."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/cart": {
+      "get": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Get user's shopping cart",
+        "description": "This endpoint allows a user to retrieve their shopping cart.",
+        "operationId": "getUserCart",
+        "responses": {
+          "200": {
+            "description": "User's shopping cart retrieved successfully."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/cart/remove/{product_id}": {
+      "delete": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Remove product from cart",
+        "description": "This endpoint allows a user to remove a specific product from their shopping cart.",
+        "operationId": "removeProductFromCart",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "product_id",
+            "description": "ID of the product to remove from the cart.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Product removed from cart successfully."
+          },
+          "404": {
+            "description": "Product not found in the cart."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/cart/empty": {
+      "delete": {
+        "tags": [
+          "Cart"
+        ],
+        "summary": "Empty user's shopping cart",
+        "description": "This endpoint allows a user to empty their shopping cart.",
+        "operationId": "emptyUserCart",
+        "responses": {
+          "200": {
+            "description": "User's shopping cart emptied successfully."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/address/add": {
+      "post": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Add address",
+        "description": "This endpoint allows a user to add a new address.",
+        "operationId": "addAddress",
+        "requestBody": {
+          "description": "Data required to add a new address.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Address added successfully."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/address": {
+      "get": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Get user's addresses",
+        "description": "This endpoint allows a user to retrieve their saved addresses.",
+        "operationId": "getUserAddresses",
+        "responses": {
+          "200": {
+            "description": "User's addresses retrieved successfully."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/address/{id}": {
+      "get": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Get address by ID",
+        "description": "This endpoint allows a user to retrieve a specific address by its ID.",
+        "operationId": "getAddressById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "ID of the address to retrieve.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Address retrieved successfully."
+          },
+          "404": {
+            "description": "Address not found."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/address/update/{id}": {
+      "put": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Update address by ID",
+        "description": "This endpoint allows a user to update a specific address by its ID.",
+        "operationId": "updateAddressById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "ID of the address to update.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Data required to update the address.",
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Address"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Address updated successfully."
+          },
+          "404": {
+            "description": "Address not found."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/address/delete/{id}": {
+      "delete": {
+        "tags": [
+          "Address"
+        ],
+        "summary": "Delete address by ID",
+        "description": "This endpoint allows a user to delete a specific address by its ID.",
+        "operationId": "deleteAddressById",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "description": "ID of the address to delete.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Address deleted successfully."
+          },
+          "404": {
+            "description": "Address not found."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    },
+    "/payment/generate/{address_id}": {
+      "post": {
+        "tags": [
+          "Payment"
+        ],
+        "summary": "Generate payment",
+        "description": "This endpoint allows a user to generate a payment for a specific address.",
+        "operationId": "generatePayment",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "address_id",
+            "description": "ID of the address for which payment is to be generated.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Payment generated successfully."
+          },
+          "404": {
+            "description": "Address not found."
+          }
+        },
+        "security": [
+          {
+            "BearerAuth": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "Register": {
+        "type": "object",
+        "required": [
+          "full_name",
+          "username",
+          "email",
+          "phone_number",
+          "password"
+        ],
+        "properties": {
+          "full_name": {
+            "type": "string",
+            "description": "User's full name.",
+            "example": "John Doe"
+          },
+          "username": {
+            "type": "string",
+            "description": "Unique username.",
+            "example": "johndoe123"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address.",
+            "example": "john@example.com"
+          },
+          "phone_number": {
+            "type": "string",
+            "description": "User's phone number.",
+            "example": "092341511"
+          },
+          "password": {
+            "type": "string",
+            "format": "password",
+            "description": "User's password.",
+            "example": "password123"
+          }
+        }
+      },
+      "Login": {
+        "type": "object",
+        "required": [
+          "email",
+          "password"
+        ],
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "User's email address.",
+            "example": "john@example.com"
+          },
+          "password": {
+            "type": "string",
+            "description": "User's password.",
+            "example": "password123"
+          }
+        }
+      },
+      "Product": {
+        "type": "object",
+        "required": [
+          "name",
+          "description",
+          "price",
+          "stock",
+          "category"
+        ],
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Product name.",
+            "example": "Sports T-shirt"
+          },
+          "description": {
+            "type": "string",
+            "description": "Product description.",
+            "example": "Breathable T-shirt for sports activities."
+          },
+          "price": {
+            "type": "number",
+            "format": "float",
+            "description": "Product price.",
+            "example": 29.99
+          },
+          "stock": {
+            "type": "integer",
+            "description": "Available stock of the product.",
+            "example": 200
+          },
+          "category": {
+            "type": "string",
+            "description": "Product category.",
+            "example": "Clothing"
+          }
+        }
+      },
+      "CartAdd": {
+        "type": "object",
+        "required": [
+          "product_id",
+          "quantity"
+        ],
+        "properties": {
+          "product_id": {
+            "type": "string",
+            "description": "ID of the product to add to the cart.",
+            "example": "814d8821-ec47-44f9-a4e6-30ae67e036bb"
+          },
+          "quantity": {
+            "type": "integer",
+            "description": "Quantity of the product to add to the cart.",
+            "example": 4
+          }
+        }
+      },
+      "Address": {
+        "type": "object",
+        "required": [
+          "department",
+          "locality",
+          "street_address",
+          "number",
+          "type",
+          "additional_references"
+        ],
+        "properties": {
+          "department": {
+            "type": "string",
+            "description": "Department where the address is located.",
+            "example": "Montevideo"
+          },
+          "locality": {
+            "type": "string",
+            "description": "Locality where the address is located.",
+            "example": "Pajas Blancas"
+          },
+          "street_address": {
+            "type": "string",
+            "description": "Street address.",
+            "example": "Camino Pajas Blancas"
+          },
+          "number": {
+            "type": "string",
+            "description": "Number of the address.",
+            "example": "9315"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "home",
+              "work"
+            ],
+            "description": "Type of address (home or work).",
+            "example": "home"
+          },
+          "additional_references": {
+            "type": "string",
+            "description": "Additional references for the address (e.g., landmarks).",
+            "example": ""
+          }
+        }
+      }
+    },
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

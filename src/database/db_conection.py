@@ -6,16 +6,24 @@ import os
 @singelton
 class DBConnection():
     """
-    Class to handle database connections.
+    A class representing a database connection.
+
+    This class provides methods to establish a connection to a MySQL database.
+
+    Attributes:
+        connection: The connection object to the MySQL database.
+
+    Methods:
+        __init__: Initializes the DBConnection object and establishes a connection to the database.
     """
 
     def __init__(self):
         """
-        Initialize DBConnection class.
+        Initializes the DBConnection object and establishes a connection to the database.
 
-        Attempts to establish a connection with the MySQL database using environment variables.
+        Raises:
+            Exception: If an error occurs while establishing the connection.
         """
-
         try:
             self.connection = connect(
                 host=os.getenv('MYSQL_HOST'),
