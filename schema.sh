@@ -1,1 +1,0 @@
-mysqldump -u root -p --routines --databases --no-data  ecommerce_db > schema/schema.sql

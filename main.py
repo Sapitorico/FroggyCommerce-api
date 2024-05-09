@@ -5,7 +5,8 @@ from config import config
 import os
 
 # Initialize Flask application
-app = init_app(config['production'])
+app = init_app(config)
+
 
 
 @app.route('/', methods=['GET'])
@@ -30,4 +31,4 @@ def unsupported_media_type(error):
 
 if __name__ == '__main__':
     load_dotenv()
-    app.run(debug=True, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))

@@ -4,17 +4,28 @@ import pytz
 from os import getenv
 from datetime import datetime, timedelta
 from flask import jsonify, request
+from bcrypt import checkpw, gensalt, hashpw
 
 
-class Security():
-    """
-    Provides functionalities related to user authentication and authorization using JSON Web Tokens (JWT) within a Flask application.
-    """
-
+class SecurityService():
     # Get the secret key from environment variables
-    secret = getenv('JWT_SECRET')
-    algorithm = 'HS256'  # Encryption algorithm used
-    tz = pytz.timezone('America/Montevideo')
+    _secret = getenv('SECRET_KEY')
+    _algorithm = getenv('ALGORITHM')
+    _tz = pytz.timezone('America/Montevideo')
+
+    @staticmethod
+    def hash_password(password):
+        """
+        Hashes the given password using bcrypt algorithm.
+        """
+        return hashpw(password.encode('utf-8'), gensalt()).decode('utf-8')
+
+    @staticmethod
+    def check_password(hashed_password, password):
+        """
+        Checks if the given password matches the hashed password.
+        """
+        return checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
     @classmethod
     def generate_token(cls, user):
@@ -25,17 +36,15 @@ class Security():
             str: Generated JWT token.
         """
         payload = {
-            "iat": datetime.now(tz=cls.tz),  # Token issuance date and time
-
-            # Token expiration date (1 day)
-            "exp": datetime.now(tz=cls.tz) + timedelta(days=1),
+            "iat": datetime.now(tz=cls._tz),  # Token issuance date and time
+            "exp": datetime.now(tz=cls._tz) + timedelta(days=1),
             "id": user.id,
             "full_name": user.full_name,
             "username": user.username,
             "email": user.email,
             "user_type": user.user_type,
         }
-        token = jwt.encode(payload, cls.secret, algorithm=cls.algorithm)
+        token = jwt.encode(payload, cls._secret, algorithm=cls._algorithm)
         return token
 
     @classmethod
@@ -52,7 +61,7 @@ class Security():
         try:
             encode_token = authorization.split(' ')[1]
             payload = jwt.decode(
-                encode_token, cls.secret, algorithms=[cls.algorithm])
+                encode_token, cls._secret, algorithms=[cls._algorithm])
             return payload
         except jwt.ExpiredSignatureError:
             return jsonify({"success": False, "message": "Token expired"}), 403

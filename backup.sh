@@ -1,1 +1,0 @@
-mysqldump -u root -p --no-create-info ecommerce_db > backups/data_backup.sql
