@@ -60,7 +60,7 @@ class UsersModel():
         except Exception as e:
             print(e)
         finally:
-            cursor.close()
+            conn.close()
 
     @classmethod
     def get(cls, data):

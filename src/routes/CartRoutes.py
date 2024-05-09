@@ -4,13 +4,13 @@ from flask import Blueprint, request
 from src.controllers.CartController import CartController
 
 # Security
-from src.utils.Security import Security
+from src.services.SecurityService import SecurityService
 
 cart = Blueprint('cart', __name__)
 
 
 @cart.route('/add', methods=['POST'])
-@Security.verify_session
+@SecurityService.verify_session
 def add_to_cart(user_id):
     """
     Add an item to the user's cart.
@@ -28,7 +28,7 @@ def add_to_cart(user_id):
 
 
 @cart.route('/', methods=['GET'])
-@Security.verify_session
+@SecurityService.verify_session
 def get_cart(user_id):
     """
     Retrieves the cart for the specified user.
@@ -45,7 +45,7 @@ def get_cart(user_id):
 
 
 @cart.route('/remove/<string:id>', methods=['DELETE'])
-@Security.verify_session
+@SecurityService.verify_session
 def remove(user_id, id):
     """
     Removes an item from the user's cart.
@@ -63,7 +63,7 @@ def remove(user_id, id):
 
 
 @cart.route('/empty', methods=['DELETE'])
-@Security.verify_session
+@SecurityService.verify_session
 def empty_cart(user_id):
     """
     Empties the cart for the specified user.

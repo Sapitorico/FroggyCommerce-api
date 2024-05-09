@@ -4,13 +4,13 @@ from flask import Blueprint, request
 from src.controllers.PaymentController import PaymentController
 
 # Security
-from src.utils.Security import Security
+from src.services.SecurityService import SecurityService
 
 payment = Blueprint('payment', __name__)
 
 
 @payment.route('/generate/<string:address_id>', methods=['GET'])
-@Security.verify_session
+@SecurityService.verify_session
 def generate_payment_link(user_id, address_id):
     """
     Generates a payment link for the given user and address.

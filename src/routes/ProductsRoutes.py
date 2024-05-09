@@ -4,14 +4,14 @@ from flask import Blueprint, request
 from src.controllers.ProductsController import ProductsController
 
 # Security
-from src.utils.Security import Security
+from src.services.SecurityService import SecurityService
 
 
 product = Blueprint('product', __name__)
 
 
 @product.route('/create', methods=['POST'])
-@Security.verify_admin
+@SecurityService.verify_admin
 def create_product():
     """
     Create a new product.
@@ -57,7 +57,7 @@ def get_product(id):
 
 
 @product.route('/update/<string:id>', methods=['PUT'])
-@Security.verify_admin
+@SecurityService.verify_admin
 def update_product(id):
     """
     Update a product with the given ID.
@@ -75,7 +75,7 @@ def update_product(id):
 
 
 @product.route('/delete/<string:id>', methods=['DELETE'])
-@Security.verify_admin
+@SecurityService.verify_admin
 def delete_product(id):
     """
     Delete a product by its ID.

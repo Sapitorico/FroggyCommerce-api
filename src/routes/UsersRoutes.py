@@ -5,13 +5,13 @@ from src.controllers.UsersController import UsersController
 
 
 # Security
-from src.utils.Security import Security
+from src.services.SecurityService import SecurityService
 
 user = Blueprint('user', __name__)
 
 
 @user.route('/', methods=['GET'])
-@Security.verify_admin
+@SecurityService.verify_admin
 def get_users():
     """
     Retrieves a list of users.
@@ -25,7 +25,7 @@ def get_users():
 
 
 @user.route('/profile', methods=['GET'])
-@Security.verify_session
+@SecurityService.verify_session
 def get_profile_user(user_id):
     """
     Retrieves the profile of a user by their ID.
@@ -43,7 +43,7 @@ def get_profile_user(user_id):
 
 
 @user.route('/update', methods=['POST'])
-@Security.verify_session
+@SecurityService.verify_session
 def update_user(user_id):
     """
     Update user information.
@@ -61,7 +61,7 @@ def update_user(user_id):
 
 
 @user.route('/delete', methods=['DELETE'])
-@Security.verify_session
+@SecurityService.verify_session
 def delete_user(user_id):
     """
     Deletes a user with the given user_id.

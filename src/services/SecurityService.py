@@ -9,7 +9,7 @@ from bcrypt import checkpw, gensalt, hashpw
 
 class SecurityService():
     # Get the secret key from environment variables
-    _secret = getenv('JWT_SECRET')
+    _secret = getenv('SECRET_KEY')
     _algorithm = getenv('ALGORITHM')
     _tz = pytz.timezone('America/Montevideo')
 

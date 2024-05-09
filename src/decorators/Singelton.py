@@ -1,5 +1,14 @@
 
 def singelton(cls):
+    """
+    A decorator that converts a class into a singleton.
+
+    Args:
+        cls: The class to be converted into a singleton.
+
+    Returns:
+        The singleton instance of the class.
+    """
 
     _instances = dict()
 

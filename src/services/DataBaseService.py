@@ -1,5 +1,5 @@
 import logging
-from src.utils.decorators.Singelton import singelton
+from src.decorators.Singelton import singelton
 from mysql.connector import connect
 import os
 
@@ -33,7 +33,7 @@ class DataBaseService():
                 database=os.getenv('MYSQL_DB')
             )
         except Exception as e:
-            logging.error(f"Error: {str(e)}")
+            logging.error(f"MySQL Error: {str(e)}")
             return None
 
     def get_cursor(self):

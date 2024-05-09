@@ -11,7 +11,8 @@ class AddressModel():
     Represents an address model.
     """
 
-    def __init__(self, id, user_id, department, locality, street_address, number, type, additional_references, created_at=None, updated_at=None):
+    def __init__(self, id, user_id, department, locality, street_address, number, type,
+                 additional_references, created_at=None, updated_at=None):
         """
         Initializes a new instance of the AddressModel class.
 

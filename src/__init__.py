@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
@@ -12,7 +13,7 @@ swagger_ui_blueprint = get_swaggerui_blueprint(
     SWAGGER_URL,
     API_URL,
     config={
-        'app_name': 'Access API'
+        'app_name': 'FroggyCommerce'
     }
 )
 
@@ -28,7 +29,11 @@ def init_app(config):
     """
 
     # Configuration
-    app.config.from_object(config)
+    env = os.getenv('ENV', 'development')
+    if env == 'production':
+        app.config.from_object(config['production'])
+    else:
+        app.config.from_object(config['development'])
 
     app.register_blueprint(swagger_ui_blueprint, url_prefix=SWAGGER_URL)
 

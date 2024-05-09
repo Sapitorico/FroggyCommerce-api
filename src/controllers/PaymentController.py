@@ -13,6 +13,7 @@ from src.services.MercadoPagoService import MP_SDK
 
 conn = DataBaseService()
 
+
 class PaymentController():
 
     @classmethod
@@ -79,9 +80,9 @@ class PaymentController():
         merchant_order = cls.verify_payment(topic, payment_id)
         if merchant_order:
             total_quantity = sum(item['quantity']
-                                    for item in merchant_order['items'])
+                                 for item in merchant_order['items'])
             order = OrderModel(customer_id=user_id, address_id=address_id, order_number=merchant_order['id'],
-                                total_quantity=total_quantity, total_amount=merchant_order['total_amount'])
+                               total_quantity=total_quantity, total_amount=merchant_order['total_amount'])
             response = order.create(merchant_order)
             if response:
                 CartModel.empty(user_id)
@@ -137,15 +138,17 @@ class PaymentController():
         This class provides methods for generating payment preferences.
         It interacts with the Mercado Pago SDK to perform these operations.
         """
-        base_url = os.getenv('BASE_URL')
+        name = os.getenv('API_NAME')
+        usr_schema = os.getenv('URL_SCHEME')
+        server_name = os.getenv('SERVER_NAME')
         preference_data = {
             "items": cart,
             "back_urls": {
-                "success": f"http://localhost:5000/api/payment/success",
-                "failure": f"http://localhost:5000/api/payment/failure",
-                "pending": f"http://localhost:5000/api/payment/pending"
+                "success": f"{usr_schema}://{server_name}/api/payment/success",
+                "failure": f"{usr_schema}://{server_name}/api/payment/failure",
+                "pending": f"{usr_schema}://{server_name}/api/payment/pending"
             },
-            "notification_url": f"{base_url}/api/payment/notification/{user_id}/{address_id}",
-            "statement_descriptor": "E-commerce-sapardo",
+            "notification_url": f"{usr_schema}://{server_name}/api/payment/notification/{user_id}/{address_id}",
+            "statement_descriptor": name,
         }
         return preference_data

@@ -4,13 +4,13 @@ from flask import Blueprint, request
 from src.controllers.AddressController import AddressController
 
 # Security
-from src.utils.Security import Security
+from src.services.SecurityService import SecurityService
 
 address = Blueprint('address', __name__)
 
 
 @address.route('/add', methods=['POST'])
-@Security.verify_session
+@SecurityService.verify_session
 def add_new_address(user_id):
     """
     Add a new address for the specified user.
@@ -28,7 +28,7 @@ def add_new_address(user_id):
 
 
 @address.route('/', methods=['GET'])
-@Security.verify_session
+@SecurityService.verify_session
 def list_addresses(user_id):
     """
     Retrieve a list of addresses for a given user.
@@ -45,7 +45,7 @@ def list_addresses(user_id):
 
 
 @address.route('/<string:id>', methods=['GET'])
-@Security.verify_session
+@SecurityService.verify_session
 def get_address(user_id, id):
     """
     Get the address with the specified ID.
@@ -63,7 +63,7 @@ def get_address(user_id, id):
 
 
 @address.route('/update/<string:id>', methods=['PUT'])
-@Security.verify_session
+@SecurityService.verify_session
 def update_address(user_id, id):
     """
     Update an address for a user.
@@ -82,7 +82,7 @@ def update_address(user_id, id):
 
 
 @address.route('/delete/<string:id>', methods=['DELETE'])
-@Security.verify_session
+@SecurityService.verify_session
 def delete_address(user_id, id):
     """
     Delete an address.
