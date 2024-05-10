@@ -8,7 +8,6 @@ import os
 app = init_app(config)
 
 
-
 @app.route('/', methods=['GET'])
 def index():
     return 'Welcome to the virtual store API'
