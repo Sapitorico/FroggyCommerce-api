@@ -1,3 +1,7 @@
+<div align="center">
+  <img  src="https://github.com/Sapitorico/FroggyCommerce-api/assets/105575956/dfd4df61-5ef3-4761-95b2-e7388f696611" width="300">
+</div>
+
 <h1 align="center">🐸 Froggy Commerce</h1>
 
 <div align="center">
