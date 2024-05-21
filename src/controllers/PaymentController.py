@@ -148,7 +148,7 @@ class PaymentController():
                 "failure": f"{usr_schema}://{server_name}/api/payment/failure",
                 "pending": f"{usr_schema}://{server_name}/api/payment/pending"
             },
-            "notification_url": f"{usr_schema}://{server_name}/api/payment/notification/{user_id}/{address_id}",
+            "notification_url": f"{usr_schema}://{server_name}/api/payment/notification/{user_id}/{address_id}?source_news=ipn",
             "statement_descriptor": name,
         }
         return preference_data
