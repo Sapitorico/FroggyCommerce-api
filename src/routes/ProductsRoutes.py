@@ -89,3 +89,32 @@ def delete_product(id):
     if request.method == 'DELETE':
         response = ProductsController.delete_product(id)
         return response
+
+
+@product.route('/search', methods=['GET'])
+@SecurityService.verify_admin
+def search_product():
+    """
+    Search for a product by name.
+
+    Returns:
+        The response from the ProductsController.search method.
+    """
+    if request.method == 'GET':
+        name = request.args.get('name')
+        response = ProductsController.search(name)
+        return response
+    
+@product.route('/filter', methods=['GET'])
+@SecurityService.verify_admin
+def filter_product():
+    """
+    Filter products based on the specified category.
+
+    Returns:
+        The filtered products as a response.
+    """
+    if request.method == 'GET':
+        category = request.args.get('category')
+        response = ProductsController.filter(category)
+        return response

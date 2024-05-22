@@ -22,7 +22,7 @@ class ProductsModel():
         updated_at (datetime, optional): The timestamp when the product was last updated.
     """
 
-    def __init__(self, id, name, description, price, stock, category, category_id, created_at=None, updated_at=None):
+    def __init__(self, id, name, description, price, stock, category, category_id=None, created_at=None, updated_at=None):
         self.id = id if id is not None else str(uuid.uuid4())
         self.name = name
         self.description = description
@@ -138,6 +138,60 @@ class ProductsModel():
             if message == 'success':
                 conn.connection.commit()
                 return True
+        except Exception as e:
+            print(e)
+        finally:
+            conn.close()
+
+    @classmethod
+    def search_by_name(cls, name):
+        """
+        Search products by name.
+
+        Args:
+            name (str): The name of the product to search for.
+
+        Returns:
+            list: A list of products matching the given name.
+
+        Raises:
+            Exception: If an error occurs during the search.
+
+        """
+        try:
+            cursor = conn.get_cursor()
+            cursor.callproc("Search_products", (name,))
+            for result in cursor.stored_results():
+                products = result.fetchall()
+            if products:
+                return products
+        except Exception as e:
+            print(e)
+        finally:
+            conn.close()
+
+    @classmethod
+    def filter_by_category(cls, category):
+        """
+        Filter products by category.
+
+        Args:
+            category (str): The category to filter by.
+
+        Returns:
+            list: A list of products matching the specified category.
+
+        Raises:
+            Exception: If an error occurs while filtering the products.
+
+        """
+        try:
+            cursor = conn.get_cursor()
+            cursor.callproc("Filter_by_category", (category,))
+            for result in cursor.stored_results():
+                products = result.fetchall()
+            if products:
+                return products
         except Exception as e:
             print(e)
         finally:

@@ -101,6 +101,55 @@ class ProductsController():
             return jsonify({"success": False, "message": "Product not found"}), 404
         return jsonify({"success": True, "message": "Product successfully deleted"}), 200
 
+    @classmethod
+    def search(cls, name):
+        """
+        Search for products by name.
+
+        Args:
+            name (str): The name of the product to search for.
+
+        Returns:
+            A JSON response containing the search results.
+
+        Raises:
+            400 Bad Request: If no search query is provided.
+            404 Not Found: If no products are found.
+
+        """
+        if not name:
+            return jsonify({"success": False, "message": "No search query provided"}), 400
+        products = ProductsModel.search_by_name(name)
+        if not products:
+            return jsonify({"success": False, "message": "No products found"}), 404
+        products = [ProductsModel(id=product[0], name=product[1], description=product[2], category=product[3], price=product[4],
+                                    stock=product[5], created_at=product[6], updated_at=product[7]).to_dict() for product in products]
+        return jsonify({"success": True, "message": "Products retrieved successfully", "products": products}), 200
+    
+    @classmethod
+    def filter(cls, category):
+        """
+        Filter products by category.
+
+        Args:
+            category (str): The category to filter by.
+
+        Returns:
+            Flask Response: A JSON response containing the filtered products.
+
+        Raises:
+            HTTPException: If no category query is provided or no products are found.
+
+        """
+        if not category:
+            return jsonify({"success": False, "message": "No category query provided"}), 400
+        products = ProductsModel.filter_by_category(category)
+        if not products:
+            return jsonify({"success": False, "message": "No products found"}), 404
+        products = [ProductsModel(id=product[0], name=product[1], description=product[2], category=product[3], price=product[4],
+                                  stock=product[5], created_at=product[6], updated_at=product[7]).to_dict() for product in products]
+        return jsonify({"success": True, "message": "Products retrieved successfully", "products": products}), 200
+
     @staticmethod
     def validate(product):
         """
