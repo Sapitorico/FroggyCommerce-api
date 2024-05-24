@@ -157,6 +157,8 @@ class UsersModel():
             if message == 'success':
                 conn.connection.commit()
                 return True
+            elif message == 'already_exists':
+                return message
         except Exception as e:
             print(e)
         finally:

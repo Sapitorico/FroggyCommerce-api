@@ -23,27 +23,12 @@ class ProductsController():
         validate = cls.validate(data)
         if validate:
             return validate
-        product = ProductsModel(None, data['name'], data['description'], data['price'], data['stock'],
-                                data['category'], None)
+        product = ProductsModel(None, name=data['name'], description=data['description'], price=data['price'], stock=data['stock'],
+                                category=data['category'], images=data['images'])
         response = product.create()
         if not response:
             return jsonify({"success": False, "message": 'Product already exists'}), 400
         return jsonify({"success": True, "message": 'Successfully created product'}), 201
-
-    @classmethod
-    def get_products(cls):
-        """
-        Get all products.
-
-        Returns:
-            A JSON response containing the list of products.
-        """
-        products = ProductsModel.get_all()
-        if not products:
-            return jsonify({"success": False, "message": "No products found"}), 404
-        products = [ProductsModel(product[0], product[1], product[2], product[3], product[4],
-                                  product[5], None, product[6], product[7]).to_dict() for product in products]
-        return jsonify({"success": True, "message": "Products retrieved successfully", "products": products}), 200
 
     @classmethod
     def get_product_by_id(cls, id):
@@ -59,8 +44,8 @@ class ProductsController():
         product = ProductsModel.get_by_id(id)
         if not product:
             return jsonify({"success": False, "message": "Product not found"}), 404
-        product = ProductsModel(product[0], product[1], product[2], product[3], product[4],
-                                product[5], None, product[6], product[7]).to_dict()
+        product = ProductsModel(id=product[0], name=product[1], description=product[2], price=product[3], stock=product[4],
+                                category=product[5], created_at=product[6], updated_at=product[7], images=product[8]).to_dict()
         return jsonify({"success": True, "message": "Product retrieved successfully",  "product": product}), 200
 
     @classmethod
@@ -78,11 +63,13 @@ class ProductsController():
         validate = cls.validate(data)
         if validate:
             return validate
-        product = ProductsModel(id, data['name'], data['description'], data['price'],
-                                data['stock'], data['category'], None)
+        product = ProductsModel(id=id, name=data['name'], description=data['description'], price=data['price'],
+                                stock=data['stock'], category=data['category'], images=data['images'])
         response = product.update()
         if not response:
             return jsonify({"success": False, "message": "Product not found"}), 404
+        if response == 'already_exists':
+            return jsonify({"success": False, "message": "Product already exists"}), 400
         return jsonify({"success": True, "message": "Product successfully upgraded"}), 200
 
     @classmethod
@@ -102,7 +89,7 @@ class ProductsController():
         return jsonify({"success": True, "message": "Product successfully deleted"}), 200
 
     @classmethod
-    def search(cls, name):
+    def search(cls, page, per_page, name):
         """
         Search for products by name.
 
@@ -117,17 +104,18 @@ class ProductsController():
             404 Not Found: If no products are found.
 
         """
-        if not name:
-            return jsonify({"success": False, "message": "No search query provided"}), 400
-        products = ProductsModel.search_by_name(name)
+        if not page or not per_page or not name:
+            return jsonify({"success": False, "message": "No page or per_page or search query provided"}), 400
+        products, total_pages = ProductsModel.search_by_name(
+            page, per_page, name)
         if not products:
             return jsonify({"success": False, "message": "No products found"}), 404
         products = [ProductsModel(id=product[0], name=product[1], description=product[2], category=product[3], price=product[4],
-                                    stock=product[5], created_at=product[6], updated_at=product[7]).to_dict() for product in products]
-        return jsonify({"success": True, "message": "Products retrieved successfully", "products": products}), 200
-    
+                                  stock=product[5], created_at=product[6], updated_at=product[7], images=product[8]).to_dict() for product in products]
+        return jsonify({"success": True, "message": "Products retrieved successfully", "products": products, "total_pages": total_pages}), 200
+
     @classmethod
-    def filter(cls, category):
+    def filter(cls, page, per_page, category):
         """
         Filter products by category.
 
@@ -141,14 +129,26 @@ class ProductsController():
             HTTPException: If no category query is provided or no products are found.
 
         """
-        if not category:
-            return jsonify({"success": False, "message": "No category query provided"}), 400
-        products = ProductsModel.filter_by_category(category)
+        if not page or not per_page or not category:
+            return jsonify({"success": False, "message": "No page or per_page or category query provided"}), 400
+        products, total_pages = ProductsModel.filter_by_category(
+            page, per_page, category)
+        if not products:
+            return jsonify({"success": False, "message": "No products found"}), 404
+        products = [ProductsModel(id=product[0], name=product[1], description=product[2], category=product[3], price=product[4],
+                                  stock=product[5], created_at=product[6], updated_at=product[7], images=product[8]).to_dict() for product in products]
+        return jsonify({"success": True, "message": "Products retrieved successfully", "products": products, "total_pages": total_pages}), 200
+
+    @classmethod
+    def pagination(cls, page, per_page):
+        if not page or not per_page:
+            return jsonify({"success": False, "message": "No page or per_page query provided"}), 400
+        products, total_pages = ProductsModel.pagination(page, per_page)
         if not products:
             return jsonify({"success": False, "message": "No products found"}), 404
         products = [ProductsModel(id=product[0], name=product[1], description=product[2], category=product[3], price=product[4],
                                   stock=product[5], created_at=product[6], updated_at=product[7]).to_dict() for product in products]
-        return jsonify({"success": True, "message": "Products retrieved successfully", "products": products}), 200
+        return jsonify({"success": True, "message": "Products retrieved successfully", "products": products, "total_pages": total_pages}), 200
 
     @staticmethod
     def validate(product):
@@ -189,4 +189,16 @@ class ProductsController():
         elif not isinstance(product['category'], str) or len(product['category']) == 0:
             return jsonify({"success": False, "message": "'category' field must be a non-empty string"}), 400
 
+        if 'images' not in product:
+            return jsonify({"success": False, "message": "'images' field is required"}), 400
+        elif not isinstance(product['images'], list) or len(product['images']) == 0 or len(product['images']) > 6:
+            return jsonify({"success": False, "message": "'images' field must be a non-empty array and cannot have more than 6 images"}), 400
+        else:
+            for image in product['images']:
+                if not isinstance(image, dict) or 'url' not in image or 'is_main' not in image or not isinstance(image['url'], str) or not isinstance(image['is_main'], bool):
+                    return jsonify({"success": False, "message": "Each item in 'images' must be a dictionary with 'url' (string) and 'is_main' (true or false) keys"}), 400
+            main_images = [image for image in product['images']
+                           if image['is_main'] == True]
+            if len(main_images) != 1:
+                return jsonify({"success": False, "message": "Exactly one image should have 'is_main' set to True"}), 400
         return None

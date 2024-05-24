@@ -6,8 +6,8 @@ class DevelopmentConfig():
     TESTING = True
     USE_RELOADER = True
     SECRET_KEY = os.getenv('SECRET_KEY')
-    SERVER_NAME = os.getenv('SERVER_NAME')
     PREFERRED_URL_SCHEME = os.getenv('URL_SCHEME')
+
 
 class ProductionConfig():
     DEBUG = False

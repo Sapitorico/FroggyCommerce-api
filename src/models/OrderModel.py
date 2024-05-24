@@ -10,14 +10,11 @@ conn = DataBaseService()
 
 class OrderModel():
     def __init__(self, customer_id, address_id, order_number, total_quantity, total_amount):
-        self.id = str(uuid.uuid4())
         self.customer_id = customer_id
         self.address_id = address_id
-        self.order_details_id = str(uuid.uuid4())
         self.order_number = order_number
         self.total_quantity = total_quantity
         self.total_amount = total_amount
-        self.payment_id = str(uuid.uuid4())
 
     def create(self, merchant_order):
         try:

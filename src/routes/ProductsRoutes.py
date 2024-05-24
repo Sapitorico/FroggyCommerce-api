@@ -27,19 +27,6 @@ def create_product():
         return response
 
 
-@product.route('/', methods=['GET'])
-def get_products():
-    """
-    Retrieves all products.
-
-    Returns:
-        The response containing all products.
-    """
-    if request.method == 'GET':
-        response = ProductsController.get_products()
-        return response
-
-
 @product.route('/<string:id>', methods=['GET'])
 def get_product(id):
     """
@@ -101,10 +88,13 @@ def search_product():
         The response from the ProductsController.search method.
     """
     if request.method == 'GET':
-        name = request.args.get('name')
-        response = ProductsController.search(name)
+        page = request.args.get('page', default=1, type=int)
+        per_page = request.args.get('per_page', default=12, type=int)
+        name = request.args.get('name', type=str)
+        response = ProductsController.search(page, per_page, name)
         return response
-    
+
+
 @product.route('/filter', methods=['GET'])
 @SecurityService.verify_admin
 def filter_product():
@@ -115,6 +105,24 @@ def filter_product():
         The filtered products as a response.
     """
     if request.method == 'GET':
-        category = request.args.get('category')
-        response = ProductsController.filter(category)
+        page = request.args.get('page', default=1, type=int)
+        per_page = request.args.get('per_page', default=12, type=int)
+        category = request.args.get('category', type=str)
+        response = ProductsController.filter(page, per_page, category)
+        return response
+
+
+@product.route('/', methods=['GET'])
+@SecurityService.verify_admin
+def pagination_products():
+    """
+    Filter products based on the specified category.
+
+    Returns:
+        The filtered products as a response.
+    """
+    if request.method == 'GET':
+        page = request.args.get('page', default=1, type=int)
+        per_page = request.args.get('per_page', default=12, type=int)
+        response = ProductsController.pagination(page, per_page)
         return response

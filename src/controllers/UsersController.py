@@ -125,6 +125,8 @@ class UsersController():
         response = user.update()
         if not response:
             return jsonify({"success": False, "message": "User not found"}), 404
+        if response == 'already_exists':
+            return jsonify({"success": False, "message": "This 'user' is already registered"}), 400
         return jsonify({"success": True, "message": "User successfully updated"}), 200
 
     @classmethod
