@@ -4,7 +4,7 @@ from flask_cors import CORS
 from flask_swagger_ui import get_swaggerui_blueprint
 
 # Routes
-from .routes import AuthRoutes, CartRoutes, AddressRoutes, PaymentRoutes, ProductsRoutes, UsersRoutes
+from .routes import AuthRoutes, CartRoutes, AddressRoutes, PaymentRoutes, ProductsRoutes, CategoriesRoutes, UsersRoutes, ReviewsRoutes
 
 SWAGGER_URL = "/api"
 API_URL = "/static/openapi.json"
@@ -43,8 +43,13 @@ def init_app(config):
     app.register_blueprint(UsersRoutes.user, url_prefix='/api/users')
     # Registering products routes
     app.register_blueprint(ProductsRoutes.product, url_prefix='/api/products')
+    # Registering categories routes
+    app.register_blueprint(CategoriesRoutes.categories,
+                           url_prefix='/api/categories')
     # Registering cart routes
     app.register_blueprint(CartRoutes.cart, url_prefix='/api/cart')
+    # Registering reviews routes
+    app.register_blueprint(ReviewsRoutes.reviews, url_prefix='/api/reviews')
     # Registering address routes
     app.register_blueprint(AddressRoutes.address, url_prefix='/api/address')
     # register payment routes

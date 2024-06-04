@@ -42,7 +42,7 @@ def get_profile_user(user_id):
         return response
 
 
-@user.route('/update', methods=['POST'])
+@user.route('/update', methods=['PUT'])
 @SecurityService.verify_session
 def update_user(user_id):
     """
@@ -54,7 +54,7 @@ def update_user(user_id):
     Returns:
         dict: The response containing the result of the update operation.
     """
-    if request.method == 'POST':
+    if request.method == 'PUT':
         data = request.json
         response = UsersController.update_user(user_id, data)
         return response
