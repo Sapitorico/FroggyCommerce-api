@@ -1,7 +1,13 @@
-from flask import Blueprint, request
+from flask import Blueprint, jsonify, request
 
 # Controllers
 from src.controllers.UsersController import UsersController
+
+# Services
+from src.services.SecurityService import SecurityService
+
+# Utils
+from src.utils.format_validations import validate
 
 auth = Blueprint('auth', __name__)
 
@@ -10,32 +16,52 @@ auth = Blueprint('auth', __name__)
 def register():
     """
     Register a new user.
-
-    This function handles the registration of a new user by receiving a POST request with JSON data.
-    The JSON data should contain the necessary information for user registration.
-
-    Returns:
-        The response from the AuthController.register() function.
     """
     if request.method == 'POST':
         data = request.json
-        response = UsersController.register(data)
-        return response
+        schema = {
+            'full_name': {'type': 'string', 'minWords': 2, 'maxWords': 2, 'required': True},
+            'username': {'type': 'string', 'minLength': 1, 'required': True},
+            'email': {'type': 'string', 'minLength': 1, 'format': 'email', 'required': True},
+            'phone_number': {'type': 'string', 'minLength': 1, 'format': 'digit', 'required': True},
+            'password': {'type': 'string', 'minLength': 8, 'required': True},
+        }
+        error = validate(data, schema)
+        if error:
+            return jsonify({"success": False, "message": error}), 400
+        full_name, response = UsersController.register(data)
+        if response == 'success':
+            return jsonify({"success": True, "message": f"User '{full_name}' successfully registered"}), 201
+        if response == 'already_exists':
+            return jsonify({"success": False, "message": "User already registered"}), 409
+        if response == 'failure':
+            return jsonify({'success': False, 'message': 'An unexpected error occurred'}), 500
 
 
 @auth.route('/login', methods=['POST'])
 def login():
     """
     Handle the login request.
-
-    This function receives a POST request with JSON data containing the user's credentials.
-    It calls the `login` method of the `AuthController` class to authenticate the user.
-    The response from the `login` method is returned as the API response.
-
-    Returns:
-        The API response as returned by the `login` method of the `AuthController` class.
     """
     if request.method == 'POST':
         data = request.json
-        response = UsersController.login(data)
-        return response
+        schema = {
+            'email': {'type': 'string', 'minLength': 1, 'format': 'email', 'required': True},
+            'password': {'type': 'string', 'minLength': 8, 'required': True},
+        }
+        error = validate(data, schema)
+        if error:
+            return jsonify({"success": False, "message": error}), 400
+        user, response = UsersController.login(data)
+        if response == 'success':
+            token = SecurityService.generate_token(user)
+            return jsonify({
+                "success": True,
+                "message": "Successful login",
+                "user": user.to_dict(),
+                "token": token
+            }), 200
+        if response == 'not_found':
+            return jsonify({"success": False, "message": "Incorrect credentials"}), 400
+        if response == 'failure':
+            return jsonify({'success': False, 'message': 'An unexpected error occurred'}), 500

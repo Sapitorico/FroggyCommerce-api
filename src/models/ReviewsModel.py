@@ -3,6 +3,9 @@ import uuid
 # Databases services
 from src.services.DataBaseService import DataBaseService
 
+# Utils
+from src.utils.format_datetime import format_datetime
+
 conn = DataBaseService()
 
 
@@ -10,6 +13,21 @@ class ReviewsModel():
 
     def __init__(self, id=None, product_id=None, rating=None, user_id=None, username=None, review=None,
                  product_name=None, image_url=None, created_at=None, updated_at=None):
+        """
+        Represents a model for managing product reviews.
+
+        Attributes:
+            id (str): The unique identifier of the review.
+            product_id (str): The unique identifier of the product.
+            rating (int): The rating given to the product.
+            user_id (str): The unique identifier of the user who wrote the review.
+            username (str): The username of the user who wrote the review.
+            review (str): The content of the review.
+            product_name (str): The name of the product.
+            image_url (str): The URL of the product image.
+            created_at (datetime): The timestamp when the review was created.
+            updated_at (datetime): The timestamp when the review was last updated.
+        """
         self.id = id
         self.user_id = user_id
         self.username = username
@@ -23,12 +41,38 @@ class ReviewsModel():
 
     @classmethod
     def get_by_user(cls, user_id):
+        """
+        Retrieve reviews by user ID.
+        """
         try:
             cursor = conn.get_cursor()
-            cursor.callproc('User_reviews', (user_id,))
-            for result in cursor.stored_results():
-                reviews = result.fetchall()
-            if reviews:
+            sql = """
+                SELECT
+                    COALESCE(r.id, '') AS review_id,
+                    i.product_id,
+                    p.name,
+                    COALESCE(img.image_url, '') AS image,
+                    COALESCE(MAX(r.rating), 0) AS rating
+                FROM
+                    orders o
+                INNER JOIN
+                    order_items i ON o.id = i.order_id
+                INNER JOIN
+                    products p ON p.id = i.product_id
+                LEFT JOIN
+                    product_reviews r ON r.product_id = i.product_id AND r.user_id = o.customer_id
+                LEFT JOIN
+                    products_images img ON img.product_id = i.product_id AND img.is_main = TRUE
+                WHERE
+                    o.customer_id = %s
+                GROUP BY 
+                    i.product_id, r.id, p.name, img.image_url
+                ORDER BY
+                    MIN(i.added_at) DESC;
+            """
+            cursor.execute(sql, (user_id,))
+            reviews = cursor.fetchall()
+            if reviews is not None:
                 return reviews
         except Exception as e:
             print(e)
@@ -36,15 +80,65 @@ class ReviewsModel():
             conn.close()
 
     def create(self):
+        """
+        Creates a new product review.
+
+        Returns:
+            str: The result of the review creation. Possible values are:
+                - 'not_purchased': If the user has not purchased the product.
+                - 'already_exists': If the user has already reviewed the product.
+                - 'success': If the review was successfully created.
+        """
         try:
             cursor = conn.get_cursor()
-            cursor.callproc('Create_review', (self.user_id,
-                            self.product_id, str(uuid.uuid4()), self.rating, self.review))
-            for result in cursor.stored_results():
-                message = result.fetchone()[0]
-            if message:
-                conn.connection.commit()
-                return message
+            sql = """
+                SELECT 
+                    i.product_id
+                FROM
+                    orders o
+                        INNER JOIN
+                    order_items i ON o.id = i.order_id
+                WHERE
+                    i.product_id = %s
+                        AND o.customer_id = %s
+                """
+            cursor.execute(sql, (self.product_id, self.user_id,))
+            result = cursor.fetchone()
+            if result is None:
+                return 'not_purchased'
+            sql = """
+                SELECT
+                    r.product_id
+                FROM
+                    product_reviews r
+                WHERE
+                    r.product_id = %s
+                        AND r.user_id = %s
+                """
+            cursor.execute(sql, (self.product_id, self.user_id,))
+            result = cursor.fetchone()
+            if result is not None:
+                return 'already_exists'
+            sql = """
+                INSERT INTO product_reviews (
+                    id,
+                    product_id,
+                    user_id,
+                    rating,
+                    review
+                )
+                VALUES (
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s
+                );
+                """
+            cursor.execute(sql, (str(uuid.uuid4()), self.product_id,
+                           self.user_id, self.rating, self.review,))
+            conn.connection.commit()
+            return 'success'
         except Exception as e:
             print(e)
         finally:
@@ -52,6 +146,9 @@ class ReviewsModel():
 
     @classmethod
     def get(cls, user_id, review_id):
+        """
+        Retrieves a review from the database based on the given user ID and review ID.
+        """
         try:
             cursor = conn.get_cursor()
             sql = """
@@ -72,7 +169,7 @@ class ReviewsModel():
                         """
             cursor.execute(sql, (review_id, user_id,))
             review = cursor.fetchone()
-            if review:
+            if review is not None:
                 return review
         except Exception as e:
             print(e)
@@ -80,6 +177,9 @@ class ReviewsModel():
             conn.close()
 
     def update(self):
+        """
+        Updates the rating and review of a product review.
+        """
         try:
             cursor = conn.get_cursor()
             sql = """
@@ -92,8 +192,8 @@ class ReviewsModel():
                     """
             cursor.execute(sql, (self.id, self.user_id,))
             result = cursor.fetchone()
-            if not result:
-                return None
+            if result is None:
+                return 'not_exists'
             sql = """
                 UPDATE product_reviews 
                 SET 
@@ -105,7 +205,7 @@ class ReviewsModel():
             cursor.execute(
                 sql, (self.rating, self.review, self.id, self.user_id,))
             conn.connection.commit()
-            return True
+            return 'success'
         except Exception as e:
             print(e)
         finally:
@@ -113,6 +213,9 @@ class ReviewsModel():
 
     @classmethod
     def get_by_product(cls, product_id):
+        """
+        Retrieve reviews for a specific product.
+        """
         try:
             cursor = conn.get_cursor()
             sql = """
@@ -133,16 +236,18 @@ class ReviewsModel():
                     r.created_at DESC;
             """
             cursor.execute(sql, (product_id,))
-            result = cursor.fetchall()
-            print(result)
-            if result:
-                return result
+            reviews = cursor.fetchall()
+            if reviews is not None:
+                return reviews
         except Exception as e:
             print(e)
         finally:
             conn.close()
 
     def to_dict(self):
+        """
+        Converts the ReviewsModel object to a dictionary.
+        """
         data = {
             'id': self.id,
             'user_id': self.user_id,
@@ -152,7 +257,7 @@ class ReviewsModel():
             'review': self.review,
             'product_name': self.product_name,
             'image_url': self.image_url,
-            'created_at': self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
-            'updated_at': self.updated_at.strftime('%Y-%m-%d %H:%M:%S') if self.updated_at else None
+            'created_at': format_datetime(self.created_at),
+            'updated_at': format_datetime(self.updated_at)
         }
         return {key: value for key, value in data.items() if value is not None}

@@ -6,6 +6,9 @@ from src.services.DataBaseService import DataBaseService
 # Database connection
 from src.services.SecurityService import SecurityService
 
+# Utils
+from src.utils.format_datetime import format_datetime
+
 # Database connection:
 conn = DataBaseService()
 
@@ -20,14 +23,15 @@ class UsersModel():
         username (str): The username of the user.
         email (str): The email address of the user.
         phone_number (str): The phone number of the user.
-        password (str, optional): The password of the user. Defaults to None.
-        user_type (str, optional): The type of the user. Defaults to None.
-        created_at (datetime, optional): The timestamp when the user was created. Defaults to None.
-        updated_at (datetime, optional): The timestamp when the user was last updated. Defaults to None.
+        password (str): The password of the user. Defaults to None.
+        user_type (str): The type of the user. Defaults to None.
+        created_at (datetime): The timestamp when the user was created. Defaults to None.
+        updated_at (datetime): The timestamp when the user was last updated. Defaults to None.
     """
 
-    def __init__(self, id, full_name, username, email, phone_number, password=None, user_type=None, created_at=None, updated_at=None):
-        self.id = id if id is not None else str(uuid.uuid4())
+    def __init__(self, id=None, full_name=None, username=None, email=None, phone_number=None,
+                 password=None, user_type=None, created_at=None, updated_at=None):
+        self.id = id
         self.full_name = full_name
         self.username = username
         self.email = email
@@ -40,75 +44,146 @@ class UsersModel():
     def create(self):
         """
         Creates a new user in the database.
-
-        Returns:
-            str: The full name of the created user.
-
-        Raises:
-            Exception: If an error occurs during the creation process.
         """
         try:
             cursor = conn.get_cursor()
-            cursor.callproc(
-                "Register", (self.id, self.full_name, self.username, self.email,
-                             self.phone_number, SecurityService.hash_password(self.password)))
-            for result in cursor.stored_results():
-                message = result.fetchone()[0]
-            if message == 'success':
-                conn.connection.commit()
-                return self.full_name
+
+            sql = """
+            SELECT 
+                id
+            FROM
+                users
+            WHERE
+                email = %s
+                    OR full_name = %s
+                    OR username = %s
+                    OR phone_number = %s;
+            """
+            cursor.execute(sql, (self.email, self.full_name,
+                           self.username, self.phone_number,))
+            result = cursor.fetchone()
+
+            if result:
+                return None, 'already_exists'
+
+            sql = """
+                INSERT INTO users (
+                    id,
+                    full_name,
+                    username,
+                    email,
+                    phone_number,
+                    password
+                ) VALUES (
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s,
+                    %s
+                );
+            """
+            cursor.execute(sql, (str(uuid.uuid4()), self.full_name, self.username, self.email,
+                                 self.phone_number, SecurityService.hash_password(self.password),))
+
+            conn.connection.commit()
+
+            return self.full_name, 'success'
         except Exception as e:
-            print(e)
+            conn.connection.rollback()
+            print(f"An error occurred: {e}")
+            return None, 'failure'
         finally:
             conn.close()
 
     @classmethod
-    def get(cls, data):
+    def get(cls, email):
         """
         Retrieves a user from the database based on the provided data.
-
-        Args:
-            data (dict): The data used to retrieve the user.
-
-        Returns:
-            tuple: The user data as a tuple.
-
-        Raises:
-            Exception: If an error occurs during the retrieval process.
         """
         try:
             cursor = conn.get_cursor()
-            cursor.callproc("Login", (data['email'],))
-            for result in cursor.stored_results():
-                user_data = result.fetchone()
-            if user_data:
-                return user_data
+
+            sql = """
+            SELECT 
+                id,
+                full_name,
+                username,
+                email,
+                phone_number,
+                password,
+                user_type,
+                created_at,
+                updated_at
+            FROM
+                users
+            WHERE
+                email = %s;
+            """
+            cursor.execute(sql, (email,))
+            user = cursor.fetchone()
+
+            if user:
+                return user, 'success'
+            return None, 'not_found'
         except Exception as e:
-            print(e)
+            print(f"An error occurred: {e}")
+            return None, 'failure'
         finally:
             conn.close()
 
     @classmethod
-    def get_all(cls):
+    def get_all(cls, page, per_page, name=None):
         """
         Retrieves all users from the database.
-
-        Returns:
-            list: A list of users.
-
-        Raises:
-            Exception: If an error occurs during the retrieval process.
         """
         try:
             cursor = conn.get_cursor()
-            cursor.callproc(
-                "List_customers")
-            for result in cursor.stored_results():
-                users = result.fetchall()
+
+            sql = """
+            SELECT
+                CEIL(COUNT(*) / %s)
+            FROM
+                users u
+            WHERE
+                u.user_type = 'customer'
+                AND (%s IS NULL OR u.full_name LIKE CONCAT(%s, '%%'))
+            """
+
+            cursor.execute(sql, (per_page, name, name))
+            total_pages = cursor.fetchone()[0]
+
+            offset = (page - 1) * per_page
+
+            sql = """
+                SELECT 
+                    id,
+                    full_name,
+                    username,
+                    email,
+                    phone_number,
+                    user_type,
+                    created_at,
+                    updated_at
+                FROM
+                    users u
+                WHERE
+                    user_type = 'customer'
+                    AND (%s IS NULL OR u.full_name LIKE CONCAT(%s, '%%'))
+                ORDER BY u.created_at DESC
+                LIMIT %s
+                OFFSET %s;
+            """
+
+            cursor.execute(sql, (name, name, per_page, offset,))
+            users = cursor.fetchall()
+
             if users:
-                return users
+                return users, total_pages, 'success'
+            return None, None, 'not_found'
         except Exception as e:
-            print(e)
+            print(f"An error occurred: {e}")
+            return None, None, 'failure'
         finally:
             conn.close()
 
@@ -116,51 +191,92 @@ class UsersModel():
     def get_by_id(cls, id):
         """
         Retrieves a user from the database based on the provided ID.
-
-        Args:
-            id (str): The ID of the user.
-
-        Returns:
-            tuple: The user data as a tuple.
-
-        Raises:
-            Exception: If an error occurs during the retrieval process.
         """
         try:
             cursor = conn.get_cursor()
-            cursor.callproc("User_by_id", (id,))
-            for result in cursor.stored_results():
-                user = result.fetchone()
+            
+            sql = """
+                SELECT 
+                    id,
+                    full_name,
+                    username,
+                    email,
+                    phone_number,
+                    user_type,
+                    created_at,
+                    updated_at
+                FROM
+                    users
+                WHERE
+                    id = %s;
+            """
+            cursor.execute(sql, (id,))
+            user = cursor.fetchone()
+            
             if user:
-                return user
+                return user, 'success'
+            return None, 'not_found'
         except Exception as e:
-            print(e)
+            print(f"An error occurred: {e}")
+            return None, 'failure'
         finally:
             conn.close()
 
     def update(self):
         """
         Updates the user in the database.
-
-        Returns:
-            bool: True if the update was successful, False otherwise.
-
-        Raises:
-            Exception: If an error occurs during the update process.
         """
         try:
             cursor = conn.get_cursor()
-            cursor.callproc("Update_user", (self.id, self.full_name, self.username, self.email,
-                                            self.phone_number, SecurityService.hash_password(self.password)))
-            for result in cursor.stored_results():
-                message = result.fetchone()[0]
-            if message == 'success':
-                conn.connection.commit()
-                return True
-            elif message == 'already_exists':
-                return message
+            
+            sql = """
+            SELECT 
+                id
+            FROM
+                users
+            WHERE
+                id = %s
+            """
+            cursor.execute(sql, (self.id,))
+            result = cursor.fetchone()
+            
+            if not result:
+                return 'not_exists'
+            sql = """
+            SELECT 
+                id
+            FROM
+                users
+            WHERE
+                (email = %s
+                OR full_name = %s
+                OR username = %s
+                OR phone_number = %s)
+                AND id != %s
+            """
+            cursor.execute(sql, (self.email, self.full_name,
+                           self.username, self.phone_number, self.id))
+            result = cursor.fetchone()
+            if result:
+                return 'already_exists'
+            sql = """
+            UPDATE users 
+            SET 
+                full_name = %s,
+                username = %s,
+                email = %s,
+                phone_number = %s
+            WHERE
+                id = %s;
+            """
+            cursor.execute(sql, (self.full_name, self.username,
+                           self.email, self.phone_number, self.id,))
+            conn.connection.commit()
+            return 'success'
         except Exception as e:
-            print(e)
+            conn.connection.rollback()
+            print(f"An error occurred: {e}")
+            return'failure'
         finally:
             conn.close()
 
@@ -168,35 +284,42 @@ class UsersModel():
     def delete(cls, id):
         """
         Deletes a user from the database based on the provided ID.
-
-        Args:
-            id (str): The ID of the user to delete.
-
-        Returns:
-            bool: True if the deletion was successful, False otherwise.
-
-        Raises:
-            Exception: If an error occurs during the deletion process.
         """
         try:
             cursor = conn.get_cursor()
-            cursor.callproc("Delete_user", (id,))
-            for result in cursor.stored_results():
-                message = result.fetchone()[0]
-            if message == 'success':
-                conn.connection.commit()
-                return True
+            
+            sql = """
+            SELECT 
+                id
+            FROM
+                users
+            WHERE
+                id = %s AND user_type != 'admin';
+            """
+            cursor.execute(sql, (id,))
+            result = cursor.fetchone()
+            
+            if not result:
+                return 'not_exists'
+            
+            sql = "DELETE FROM cart WHERE customer_id = %s;"
+            cursor.execute(sql, (id,))
+            
+            sql = "DELETE FROM users WHERE id = %s AND user_type != 'admin';"
+            cursor.execute(sql, (id,))
+            
+            conn.connection.commit()
+            return 'success'
         except Exception as e:
-            print(e)
+            conn.connection.rollback()
+            print(f"An error occurred: {e}")
+            return 'failure'
         finally:
             conn.close()
 
     def to_dict(self):
         """
         Converts the user object to a dictionary.
-
-        Returns:
-            dict: The user data as a dictionary.
         """
         data = {
             "id": self.id,
@@ -205,7 +328,7 @@ class UsersModel():
             "email": self.email,
             "phone_number": self.phone_number,
             "user_type": self.user_type,
-            "created_at": self.created_at.strftime('%Y-%m-%d %H:%M:%S') if self.created_at else None,
-            "updated_at": self.updated_at.strftime('%Y-%m-%d %H:%M:%S') if self.updated_at else None
+            "created_at": format_datetime(self.created_at),
+            "updated_at": format_datetime(self.updated_at)
         }
         return {key: value for key, value in data.items() if value is not None}
